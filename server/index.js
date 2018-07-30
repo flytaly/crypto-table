@@ -4,6 +4,11 @@ const app = express();
 
 const config = require('./config');
 
+// ROUTES
+const routes = require('./routes');
+
+app.use(routes);
+
 app.set('port', config.port);
 
 app.listen(app.get('port'), () => {

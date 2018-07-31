@@ -6,7 +6,9 @@
   "scripts": {
     "test": "NODE_ENV=test mocha server/test",
     "server": "nodemon server/index.js",
-    "createDbFiles": "node server/scripts/initiateDB.js"
+    "createDbFiles": "node server/scripts/initiateDB.js",
+    "client": "npm run start --prefix client",
+    "start": "concurrently \"npm run server\" \"npm run client\""
   },
   "author": "",
   "license": "ISC",
@@ -16,8 +18,9 @@
     "lowdb": "^1.0.0"
   },
   "devDependencies": {
-    "mocha": "^5.2.0",
     "chai": "^4.1.2",
+    "concurrently": "^3.6.1",
+    "mocha": "^5.2.0",
     "nock": "^9.4.3"
   }
 }

@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "NODE_ENV=test mocha server/test",
     "server": "nodemon server/index.js",
     "createDbFiles": "node server/scripts/initiateDB.js"
   },
@@ -14,5 +14,10 @@
     "axios": "^0.18.0",
     "express": "^4.16.3",
     "lowdb": "^1.0.0"
+  },
+  "devDependencies": {
+    "mocha": "^5.2.0",
+    "chai": "^4.1.2",
+    "nock": "^9.4.3"
   }
 }

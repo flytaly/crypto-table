@@ -39,13 +39,13 @@ module.exports = () => {
                 baseAsset = formatCurrencies[baseAsset] ? formatCurrencies[baseAsset] : baseAsset;
                 quoteAsset = formatCurrencies[quoteAsset] ? formatCurrencies[quoteAsset] : quoteAsset;
 
-                if (baseAsset in acc) {
+                if (acc[baseAsset]) {
                     acc[baseAsset][quoteAsset] = pairTicker;
                 } else {
                     acc[baseAsset] = { [quoteAsset]: pairTicker };
                 }
             } else {
-                console.error('-->', `Couldn\'t find pair ${symbol}`);
+                console.error('-->', `Couldn't find pair ${symbol}`);
             }
 
             return acc;

@@ -1,6 +1,7 @@
 import io from 'socket.io-client';
 import { call, take, put, fork, takeEvery } from 'redux-saga/effects';
 import { eventChannel } from 'redux-saga';
+import produce from 'immer';
 import { appName, IOSERVER } from '../config';
 
 /**
@@ -16,18 +17,21 @@ export const UPDATE_TICKER = `${prefix}/UPDATE_TICKER`;
 /**
  * Reducer
  * */
-
 export const initialState = {
     entities: {},
 };
 
-export default (state = initialState, action) => {
-    const { type, payload } = action;
-    switch (type) {
-        default:
-            return state;
-    }
-};
+/* eslint-disable no-param-reassign */
+/* eslint-disable default-case */
+export default (state = initialState, action) =>
+    produce(state, (draft) => {
+        const { type, payload } = action;
+        switch (type) {
+            case UPDATE_TICKER:
+                draft.entities[payload.exchange] = payload.ticker;
+                break;
+        }
+    });
 
 /**
  * Selectors

@@ -1,0 +1,9 @@
+{
+  "exchanges": [
+    {
+      "name": "Binance",
+      "id": "binance",
+      "url": "https://binance.com"
+    }
+  ]
+}

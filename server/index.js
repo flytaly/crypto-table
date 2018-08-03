@@ -1,16 +1,21 @@
-const express = require('express');
-
-const app = express();
+const app = require('express')();
+const http = require('http').Server(app);
 
 const config = require('./config');
+
+app.set('port', config.port);
+
+// Socket.IO
+const io = require('socket.io')(http);
+require('./socket-io')(io);
 
 // ROUTES
 const routes = require('./routes');
 
 app.use(routes);
 
-app.set('port', config.port);
-
-app.listen(app.get('port'), () => {
+http.listen(app.get('port'), () => {
     console.log(`Server is up on ${app.get('port')} port`);
 });
+
+module.exports = http;

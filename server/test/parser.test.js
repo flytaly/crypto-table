@@ -1,7 +1,7 @@
 const nock = require('nock');
 const { expect } = require('chai');
 
-const binanceMocking = require('./mock/banance-responses');
+const binanceMocking = require('./mock/binance-responses');
 const binanceTickerCreator = require('../watcher/exchanges/binance');
 
 after((done) => {

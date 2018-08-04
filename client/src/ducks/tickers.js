@@ -2,6 +2,7 @@ import io from 'socket.io-client';
 import { call, take, put, fork, takeEvery } from 'redux-saga/effects';
 import { eventChannel } from 'redux-saga';
 import produce from 'immer';
+import { createSelector } from 'reselect';
 import { appName, IOSERVER } from '../config';
 
 /**
@@ -37,6 +38,7 @@ export default (state = initialState, action) =>
  * Selectors
  * */
 export const stateSelector = state => state[moduleName];
+export const entitiesSelector = createSelector(stateSelector, state => state.entities);
 
 /**
  * Action Creators

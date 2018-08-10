@@ -16,4 +16,8 @@ const store = createStore(
 
 sagaMiddleware.run(rootSaga);
 
+if (process.env.NODE_ENV === 'development') {
+    window.store = store;
+}
+
 export default store;

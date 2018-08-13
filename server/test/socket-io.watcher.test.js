@@ -33,7 +33,7 @@ describe('Socket.IO watcher', () => {
 
         client.on('ticker', (ticker) => {
             expect(ticker).to.have.property('ticker');
-            client.emit('stopWatch');
+            client.emit('stopWatchers');
             done();
         });
     });

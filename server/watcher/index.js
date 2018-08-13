@@ -1,13 +1,21 @@
 const binance = require('./exchanges/binance');
 const { updateInterval } = require('../config');
 
-function watcher(exchange, tickerCreator, interval, client) {
+const clients = {};
+const timers = {};
+
+const platforms = {
+    binance,
+};
+const defaultPlatform = 'binance';
+
+function watcher(exchange, tickerCreator, interval) {
     let exchangeTicker = tickerCreator();
 
     const timerId = setInterval(async () => {
         const ticker = await exchangeTicker();
         if (!ticker.error) {
-            client.emit('ticker', { exchange, ticker });
+            Object.keys(clients).forEach(id => clients[id].emit('ticker', { exchange, ticker }));
         } else {
             console.error(`${exchange} error: `, ticker.error);
             exchangeTicker = tickerCreator();
@@ -17,10 +25,19 @@ function watcher(exchange, tickerCreator, interval, client) {
     return timerId;
 }
 
-function runWatchers(socketClient) {
-    const binanceTimerId = watcher('binance', binance, updateInterval, socketClient);
+function runWatcher(platform = defaultPlatform) {
 
-    return { binance: binanceTimerId };
+    timers[platform] = watcher(platform, platforms[platform], updateInterval);
+
+    return timers;
 }
 
-module.exports = { runWatchers };
+function addClient(socketClient) {
+    clients[socketClient.id] = socketClient;
+}
+
+function removeClient(socketClient) {
+    delete clients[socketClient.id];
+}
+
+module.exports = { addClient, removeClient, runWatcher };

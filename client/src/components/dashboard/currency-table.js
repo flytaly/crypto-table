@@ -1,10 +1,10 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
+import get from 'lodash.get';
 import { entitiesSelector as tickerSelector } from '../../ducks/tickers';
 import { stateSelector as selectedSelector } from '../../ducks/selected';
 
-const get = require('lodash.get');
 
 class CurrencyTable extends Component {
     render() {

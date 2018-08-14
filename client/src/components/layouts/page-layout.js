@@ -1,9 +1,9 @@
 import React, { Component } from 'react';
 import { BrowserRouter as Router, Route, Redirect } from 'react-router-dom';
 import { Layout } from 'antd';
-import Dashboard from '../routes/Dashboard';
-import Header from './Header';
-import './PageLayout.less';
+import Dashboard from '../routes/dashboard';
+import Header from './header';
+import './page-layout.less';
 
 const { Content } = Layout;
 

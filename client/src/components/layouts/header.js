@@ -1,7 +1,7 @@
 import React from 'react';
 import { Layout, Menu } from 'antd';
 import { Link } from 'react-router-dom';
-import './Header.less';
+import './header.less';
 
 const Header = () => (
     <Layout.Header className="header">

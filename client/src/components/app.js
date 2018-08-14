@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import PageLayout from './layouts/PageLayout';
+import PageLayout from './layouts/page-layout';
 
 class App extends Component {
     render() {

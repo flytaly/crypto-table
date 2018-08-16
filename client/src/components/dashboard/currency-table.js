@@ -64,7 +64,7 @@ class CurrencyTable extends Component {
         const { rows } = this.props;
 
         const className = cn({
-            'grid-cell': true,
+            'grid-left-cell': true,
             'hovered-row': rowIndex && rowIndex === this.state.hoveredRowIndex,
         });
 

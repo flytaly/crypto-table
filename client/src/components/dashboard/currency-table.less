@@ -30,14 +30,17 @@
   &-cell {
     display: flex;
     flex-direction: column;
-    align-items: left;
     justify-content: center;
     padding: 5px;
     outline: none;
   }
 
+  &-cell {
+    align-items: flex-end;
+  }
+
   &-left-cell {
-    align-items: center;
+    align-items: flex-start;
   }
 
   &-left-cell.hovered-row,

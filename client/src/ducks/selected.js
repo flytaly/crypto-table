@@ -37,7 +37,7 @@ export default (state = initialState, action) => {
 
 export const stateSelector = state => state[moduleName];
 export const rowsSelector = createSelector(stateSelector, state => state.rows);
-export const columnsSelector = createSelector(stateSelector, state => state.column);
+export const columnsSelector = createSelector(stateSelector, state => state.columns);
 
 
 /**

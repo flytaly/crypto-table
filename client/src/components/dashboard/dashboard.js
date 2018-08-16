@@ -1,12 +1,15 @@
 import React, { Component } from 'react';
 import DocumentTitle from 'react-document-title';
-import CurrencyTable from '../dashboard/currency-table';
+import { Card } from 'antd';
+import CurrencyTable from './currency-table';
 
 class Dashboard extends Component {
     render() {
         return (
             <DocumentTitle title="Dashboard">
-                <CurrencyTable />
+                <Card>
+                    <CurrencyTable />
+                </Card>
             </DocumentTitle>
         );
     }

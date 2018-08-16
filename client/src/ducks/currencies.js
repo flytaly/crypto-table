@@ -1,7 +1,8 @@
-import { API_LOAD_CURRENCIES, appName } from '../config';
-import { arrayToObj } from './utils';
 import { all, put, takeEvery, call } from 'redux-saga/effects';
 import axios from 'axios';
+import { createSelector } from 'reselect';
+import { API_LOAD_CURRENCIES, appName } from '../config';
+import { arrayToObj } from './utils';
 
 /**
  * Constants
@@ -45,6 +46,7 @@ export default (state = initialState, action) => {
  * */
 
 export const stateSelector = state => state[moduleName];
+export const entitiesSelector = createSelector(stateSelector, state => state.entities);
 
 
 /**

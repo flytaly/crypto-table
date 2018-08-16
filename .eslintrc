@@ -28,6 +28,12 @@
             "aspects": [ "noHref", "invalidHref", "preferButton" ]
           }],
         "no-confusing-arrow": "off",
-        "object-curly-newline": ["error", {"multiline": true}]
+        "object-curly-newline": ["error", {
+                "ObjectExpression": { "minProperties": 5, "multiline": true, "consistent": true },
+                "ObjectPattern": { "minProperties": 5, "multiline": true, "consistent": true },
+                "ImportDeclaration": { "minProperties": 5, "multiline": true, "consistent": true },
+                "ExportDeclaration": { "minProperties": 5, "multiline": true, "consistent": true }
+            }
+        ]
     }
 }

@@ -7,6 +7,7 @@ import cn from 'classnames';
 import { entitiesSelector as tickerSelector } from '../../ducks/tickers';
 import { rowsSelector, columnsSelector } from '../../ducks/selected';
 import './currency-table.less';
+import AddRowField from './add-row-field';
 
 class CurrencyTable extends Component {
     constructor(props) {
@@ -41,8 +42,22 @@ class CurrencyTable extends Component {
             hoveredColumnIndex: columnIndex,
         });
 
-        if (columnIndex === 0) return this.renderLeftCell({ key, rowIndex, style, onMouseOver });
-        if (rowIndex === 0) return this.renderHeaderCell({ key, columnIndex, style, onMouseOver });
+        if (columnIndex === 0) {
+            return this.renderLeftCell({
+                key,
+                rowIndex,
+                style,
+                onMouseOver,
+            });
+        }
+        if (rowIndex === 0) {
+            return this.renderHeaderCell({
+                key,
+                columnIndex,
+                style,
+                onMouseOver,
+            });
+        }
 
         const baseAsset = rows[rowIndex - 1];
         const { exchange, quoteAsset } = columns[columnIndex - 1];
@@ -126,31 +141,38 @@ class CurrencyTable extends Component {
 
         return (
             <AutoSizer disableHeight>
-                {({ width }) => (
-                    <div onMouseLeave={this.mouseLeaveHandler}>
-                        <MultiGrid
-                            ref={this.myRef}
-                            fixedColumnCount={1}
-                            fixedRowCount={1}
-                            cellRenderer={this.cellRenderer}
-                            columnWidth={getColWidth}
-                            columnCount={columns.length + 1}
-                            height={totalHeight}
-                            rowHeight={getRowHeight}
-                            rowCount={rows.length + 1}
-                            width={width < totalWidth ? width : totalWidth}
+                {({ width: maxWidth }) => {
+                    const width = maxWidth < totalWidth ? maxWidth : totalWidth;
 
-                            classNameTopRightGrid="grid-header"
-                            classNameTopLeftGrid="grid-header-corner"
-                            classNameBottomLeftGrid="grid-left"
-                            classNameBottomRightGrid="grid-body"
-                            styleBottomRightGrid={{ outline: 'none' }}
+                    return (
+                        <div style={{ width }}>
+                            <div onMouseLeave={this.mouseLeaveHandler}>
+                                <MultiGrid
+                                    ref={this.myRef}
+                                    fixedColumnCount={1}
+                                    fixedRowCount={1}
+                                    cellRenderer={this.cellRenderer}
+                                    columnWidth={getColWidth}
+                                    columnCount={columns.length + 1}
+                                    height={totalHeight}
+                                    rowHeight={getRowHeight}
+                                    rowCount={rows.length + 1}
+                                    width={width}
 
-                            enableFixedColumnScroll
-                            enableFixedRowScroll
-                        />
-                    </div>
-                )}
+                                    classNameTopRightGrid="grid-header"
+                                    classNameTopLeftGrid="grid-header-corner"
+                                    classNameBottomLeftGrid="grid-left"
+                                    classNameBottomRightGrid="grid-body"
+                                    styleBottomRightGrid={{ outline: 'none' }}
+
+                                    enableFixedColumnScroll
+                                    enableFixedRowScroll
+                                />
+                            </div>
+                            <AddRowField />
+                        </div>
+                    );
+                }}
             </AutoSizer>
         );
     }

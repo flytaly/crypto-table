@@ -1,16 +1,65 @@
-.left-cell {
-  font-weight: bold;
+@import "~antd/lib/style/themes/default.less";
+
+.grid-row {
+  border: @border-width-base @border-style-base @border-color-split;
 }
 
-.table-cell{
-
-}
-
-.header-cell{
-  .exchange{
-
+.grid {
+  &-header,
+  &-header-corner {
+    background: @table-header-bg;
+    color: @heading-color;
+    border-bottom: @border-width-base @border-style-base @border-color-split;
   }
-  .quoteAsset{
+
+  &-left {
+    //border-right: @border-width-base @border-style-base @border-color-split;
+  }
+
+  &-body {
+  }
+
+  &-left-cell {
     font-weight: bold;
+    display: flex;
+    align-items: center;
+  }
+
+  &-header-cell,
+  &-left-cell,
+  &-cell {
+    display: flex;
+    flex-direction: column;
+    align-items: left;
+    justify-content: center;
+    padding: 5px;
+    outline: none;
+  }
+
+  &-left-cell {
+    align-items: center;
+  }
+
+  &-left-cell.hovered-row,
+  &-cell.hovered-row {
+    background-color: @table-row-hover-bg;
+  }
+
+  &-header-cell.hovered-column {
+    background-color: @table-row-hover-bg;
+  }
+
+  &-header-cell {
+    align-items: center;
+
+    .exchange {
+      font-size: 0.8rem;
+    }
+
+    .quoteAsset {
+      font-weight: bold;
+    }
+
   }
 }
+

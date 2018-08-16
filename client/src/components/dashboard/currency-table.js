@@ -1,8 +1,9 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { MultiGrid, AutoSizer } from 'react-virtualized';
-import get from 'lodash.get';
 import { connect } from 'react-redux';
+import get from 'lodash.get';
+import cn from 'classnames';
 import { entitiesSelector as tickerSelector } from '../../ducks/tickers';
 import { rowsSelector, columnsSelector } from '../../ducks/selected';
 import './currency-table.less';
@@ -11,85 +12,144 @@ class CurrencyTable extends Component {
     constructor(props) {
         super(props);
         this.myRef = React.createRef();
+        this.state = {
+            hoveredRowIndex: null,
+            hoveredColumnIndex: null,
+
+            // Sizes
+            columnWidth: 130,
+            leftColumnWidth: 70,
+            rowHeight: 40,
+            headerRowHeight: 50,
+        };
     }
 
     componentDidUpdate() {
         this.myRef.current.forceUpdateGrids();
     }
 
-    getColumnWidth = ({ columnWidth, leftColumnWidth }) => ({ index }) => {
-        if (index === 0) return leftColumnWidth;
-        return columnWidth;
-    };
+    mouseLeaveHandler = () => this.setState({
+        hoveredRowIndex: null,
+        hoveredColumnIndex: null,
+    });
 
-    cellRenderer = ({
-        columnIndex, key, rowIndex, style,
-    }) => {
+    cellRenderer = ({ columnIndex, key, rowIndex, style }) => {
         const { rows, columns, tickers } = this.props;
 
-        if (columnIndex === 0) return this.renderLeftCell({ key, rowIndex, style });
-        if (rowIndex === 0) return this.renderHeaderCell({ key, columnIndex, style });
+        const onMouseOver = () => this.setState({
+            hoveredRowIndex: rowIndex,
+            hoveredColumnIndex: columnIndex,
+        });
+
+        if (columnIndex === 0) return this.renderLeftCell({ key, rowIndex, style, onMouseOver });
+        if (rowIndex === 0) return this.renderHeaderCell({ key, columnIndex, style, onMouseOver });
 
         const baseAsset = rows[rowIndex - 1];
         const { exchange, quoteAsset } = columns[columnIndex - 1];
 
+        const className = cn({
+            'grid-cell': true,
+            'hovered-row': rowIndex === this.state.hoveredRowIndex,
+        });
+
         return (
-            <div className="table-cell" key={key} style={style}>
+            <div className={className} key={key} style={style} onMouseOver={onMouseOver}>
                 {get(tickers, [exchange, baseAsset, quoteAsset, 'last_price'])}
             </div>
         );
     };
 
-    renderLeftCell = ({
-        key, rowIndex, style,
-    }) => {
+
+    renderLeftCell = ({ key, rowIndex, style, onMouseOver }) => {
         const { rows } = this.props;
 
+        const className = cn({
+            'grid-cell': true,
+            'hovered-row': rowIndex && rowIndex === this.state.hoveredRowIndex,
+        });
+
         return (
-            <div className="left-cell" key={key} style={style}>
+            <div
+                className={className}
+                key={key}
+                style={style}
+                tabIndex={0}
+                role="rowheader"
+                onMouseOver={onMouseOver}
+                onFocus={() => this.setState({ hoveredRowIndex: rowIndex })}
+                onBlur={() => this.setState({ hoveredRowIndex: null })}
+            >
                 {rowIndex ? rows[rowIndex - 1] : ''}
             </div>
         );
     };
 
-    renderHeaderCell = ({
-        key, columnIndex, style,
-    }) => {
+    renderHeaderCell = ({ key, columnIndex, style, onMouseOver }) => {
         const { columns } = this.props;
         const { exchange, quoteAsset } = columns[columnIndex - 1];
+        const className = cn({
+            'grid-header-cell': true,
+            'hovered-column': columnIndex === this.state.hoveredColumnIndex,
+        });
+
         return (
-            <div className="header-cell" key={key} style={style}>
-                <div className="exchange">{exchange}</div>
+            <div
+                className={className}
+                key={key}
+                style={style}
+                tabIndex={0}
+                role="columnheader"
+                onMouseOver={onMouseOver}
+                onFocus={() => this.setState({ hoveredColumnIndex: columnIndex })}
+                onBlur={() => this.setState({ hoveredColumnIndex: null })}
+            >
                 <div className="quoteAsset">{quoteAsset}</div>
+                <div className="exchange">{exchange}</div>
             </div>
         );
     };
 
-
     render() {
         const { rows, columns } = this.props;
-        const columnWidth = 130;
-        const leftColumnWidth = 70;
-        const rowHeight = 40;
+        const {
+            columnWidth,
+            leftColumnWidth,
+            rowHeight,
+            headerRowHeight,
+        } = this.state;
 
         const totalWidth = (columns.length * columnWidth) + leftColumnWidth;
-        const totalHeight = (rows.length + 1) * rowHeight;
+        const totalHeight = (rows.length * rowHeight) + headerRowHeight;
+
+        const getColWidth = ({ index }) => index ? columnWidth : leftColumnWidth;
+        const getRowHeight = ({ index }) => index ? rowHeight : headerRowHeight;
 
         return (
             <AutoSizer disableHeight>
                 {({ width }) => (
-                    <MultiGrid
-                        ref={this.myRef}
-                        cellRenderer={this.cellRenderer}
-                        columnWidth={this.getColumnWidth({ columnWidth, leftColumnWidth })}
-                        columnCount={columns.length + 1}
-                        fixedColumnCount={1}
-                        fixedRowCount={1}
-                        height={totalHeight}
-                        rowHeight={rowHeight}
-                        rowCount={rows.length + 1}
-                        width={width < totalWidth ? width : totalWidth}
-                    />
+                    <div onMouseLeave={this.mouseLeaveHandler}>
+                        <MultiGrid
+                            ref={this.myRef}
+                            fixedColumnCount={1}
+                            fixedRowCount={1}
+                            cellRenderer={this.cellRenderer}
+                            columnWidth={getColWidth}
+                            columnCount={columns.length + 1}
+                            height={totalHeight}
+                            rowHeight={getRowHeight}
+                            rowCount={rows.length + 1}
+                            width={width < totalWidth ? width : totalWidth}
+
+                            classNameTopRightGrid="grid-header"
+                            classNameTopLeftGrid="grid-header-corner"
+                            classNameBottomLeftGrid="grid-left"
+                            classNameBottomRightGrid="grid-body"
+                            styleBottomRightGrid={{ outline: 'none' }}
+
+                            enableFixedColumnScroll
+                            enableFixedRowScroll
+                        />
+                    </div>
                 )}
             </AutoSizer>
         );

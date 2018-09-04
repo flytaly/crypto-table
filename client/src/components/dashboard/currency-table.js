@@ -5,10 +5,24 @@ import { connect } from 'react-redux';
 import get from 'lodash.get';
 import cn from 'classnames';
 import scrollbarSize from 'dom-helpers/util/scrollbarSize';
+import { Icon } from 'antd';
+
 import { entitiesSelector as tickerSelector } from '../../ducks/tickers';
-import { rowsSelector, columnsSelector } from '../../ducks/selected';
+import { rowsSelector, columnsSelector, deleteColumn, deleteRow } from '../../ducks/selected';
 import './currency-table.less';
 import AddTableField from './add-table-field';
+
+const DeleteIcon = ({ onClick }) => (<Icon
+    type="delete"
+    theme="outlined"
+    style={{
+        fontSize: '1.2rem',
+        color: '#f5222d',
+    }}
+    onClick={onClick}
+/>);
+
+DeleteIcon.propTypes = { onClick: PropTypes.func.isRequired };
 
 class CurrencyTable extends Component {
     constructor(props) {
@@ -17,6 +31,8 @@ class CurrencyTable extends Component {
         this.state = {
             hoveredRowIndex: null,
             hoveredColumnIndex: null,
+            clickedCol: null,
+            clickedRow: null,
 
             // Sizes
             columnWidth: 130,
@@ -94,7 +110,12 @@ class CurrencyTable extends Component {
                 onMouseOver={onMouseOver}
                 onFocus={() => this.setState({ hoveredRowIndex: rowIndex })}
                 onBlur={() => this.setState({ hoveredRowIndex: null })}
+                onClick={() => this.setState({ clickedRow: this.state.clickedRow ? null : rowIndex })}
+                onMouseLeave={() => this.setState({ clickedRow: null })}
             >
+                {this.state.clickedRow === rowIndex
+                    ? <DeleteIcon onClick={() => this.props.deleteRow(rowIndex - 1)} />
+                    : null}
                 {rowIndex ? rows[rowIndex - 1] : ''}
             </div>
         );
@@ -118,7 +139,12 @@ class CurrencyTable extends Component {
                 onMouseOver={onMouseOver}
                 onFocus={() => this.setState({ hoveredColumnIndex: columnIndex })}
                 onBlur={() => this.setState({ hoveredColumnIndex: null })}
+                onClick={() => this.setState({ clickedCol: this.state.clickedCol ? null : columnIndex })}
+                onMouseLeave={() => this.setState({ clickedCol: null })}
             >
+                {this.state.clickedCol === columnIndex
+                    ? <DeleteIcon onClick={() => this.props.deleteColumn(columnIndex - 1)} />
+                    : null}
                 <div className="quoteAsset">{quoteAsset}</div>
                 <div className="exchange">{exchange}</div>
             </div>
@@ -185,10 +211,14 @@ CurrencyTable.propTypes = {
     rows: PropTypes.arrayOf(PropTypes.string).isRequired,
     columns: PropTypes.arrayOf(PropTypes.object).isRequired,
     tickers: PropTypes.shape({}).isRequired,
+    deleteColumn: PropTypes.func.isRequired,
 };
 
 export default connect(state => ({
     tickers: tickerSelector(state),
     rows: rowsSelector(state),
     columns: columnsSelector(state),
-}))(CurrencyTable);
+}), {
+    deleteColumn,
+    deleteRow,
+})(CurrencyTable);

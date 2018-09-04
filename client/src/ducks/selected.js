@@ -10,6 +10,8 @@ const prefix = `${appName}/${moduleName}`;
 
 export const ADD_ROW = `${prefix}/ADD_ROW`;
 export const ADD_COLUMN = `${prefix}/ADD_COLUMN`;
+export const DELETE_ROW = `${prefix}/DELETE_ROW`;
+export const DELETE_COLUMN = `${prefix}/DELETE_COLUMN`;
 
 /**
  * Reducer
@@ -41,6 +43,12 @@ export default (state = initialState, action) =>
                     quoteAsset: payload[1],
                 });
                 break;
+            case DELETE_ROW:
+                delete draft.rows.splice(payload, 1);
+                break;
+            case DELETE_COLUMN:
+                delete draft.columns.splice(payload, 1);
+                break;
         }
     });
 
@@ -67,6 +75,15 @@ export const addColumn = data => ({
     payload: data,
 });
 
+export const deleteRow = rowIdx => ({
+    type: DELETE_ROW,
+    payload: rowIdx,
+});
+
+export const deleteColumn = columnIdx => ({
+    type: DELETE_COLUMN,
+    payload: columnIdx,
+});
 
 /**
  * Sagas

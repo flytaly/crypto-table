@@ -113,7 +113,7 @@ class CurrencyTable extends Component {
                 onClick={() => this.setState({ clickedRow: this.state.clickedRow ? null : rowIndex })}
                 onMouseLeave={() => this.setState({ clickedRow: null })}
             >
-                {this.state.clickedRow === rowIndex
+                {this.state.clickedRow === rowIndex && rowIndex
                     ? <DeleteIcon onClick={() => this.props.deleteRow(rowIndex - 1)} />
                     : null}
                 {rowIndex ? rows[rowIndex - 1] : ''}
@@ -212,6 +212,7 @@ CurrencyTable.propTypes = {
     columns: PropTypes.arrayOf(PropTypes.object).isRequired,
     tickers: PropTypes.shape({}).isRequired,
     deleteColumn: PropTypes.func.isRequired,
+    deleteRow: PropTypes.func.isRequired,
 };
 
 export default connect(state => ({

@@ -4,6 +4,7 @@ import { MultiGrid, AutoSizer } from 'react-virtualized';
 import { connect } from 'react-redux';
 import get from 'lodash.get';
 import cn from 'classnames';
+import scrollbarSize from 'dom-helpers/util/scrollbarSize';
 import { entitiesSelector as tickerSelector } from '../../ducks/tickers';
 import { rowsSelector, columnsSelector } from '../../ducks/selected';
 import './currency-table.less';
@@ -134,7 +135,7 @@ class CurrencyTable extends Component {
         } = this.state;
 
         const totalWidth = (columns.length * columnWidth) + leftColumnWidth;
-        const totalHeight = (rows.length * rowHeight) + headerRowHeight;
+        const totalHeight = (rows.length * rowHeight) + headerRowHeight + scrollbarSize();
 
         const getColWidth = ({ index }) => index ? columnWidth : leftColumnWidth;
         const getRowHeight = ({ index }) => index ? rowHeight : headerRowHeight;
@@ -167,6 +168,8 @@ class CurrencyTable extends Component {
 
                                     enableFixedColumnScroll
                                     enableFixedRowScroll
+
+                                    hideTopRightGridScrollbar
                                 />
                             </div>
                             <AddTableField />

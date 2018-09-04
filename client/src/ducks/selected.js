@@ -9,6 +9,7 @@ export const moduleName = 'selected';
 const prefix = `${appName}/${moduleName}`;
 
 export const ADD_ROW = `${prefix}/ADD_ROW`;
+export const ADD_COLUMN = `${prefix}/ADD_COLUMN`;
 
 /**
  * Reducer
@@ -33,6 +34,13 @@ export default (state = initialState, action) =>
         switch (type) {
             case ADD_ROW:
                 draft.rows.push(payload);
+                break;
+            case ADD_COLUMN:
+                draft.columns.push({
+                    exchange: payload[0],
+                    quoteAsset: payload[1],
+                });
+                break;
         }
     });
 
@@ -52,6 +60,11 @@ export const columnsSelector = createSelector(stateSelector, state => state.colu
 export const addRow = symbol => ({
     type: ADD_ROW,
     payload: symbol,
+});
+
+export const addColumn = data => ({
+    type: ADD_COLUMN,
+    payload: data,
 });
 
 

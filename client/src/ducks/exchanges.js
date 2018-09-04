@@ -1,5 +1,6 @@
 import { all, takeEvery, put, call } from 'redux-saga/effects';
 import axios from 'axios';
+import { createSelector } from 'reselect';
 import { API_LOAD_EXCHANGES, appName } from '../config';
 import { arrayToObj } from './utils';
 
@@ -45,6 +46,7 @@ export default (state = initialState, action) => {
  * */
 
 export const stateSelector = state => state[moduleName];
+export const entitiesSelector = createSelector(stateSelector, state => state.entities);
 
 
 /**

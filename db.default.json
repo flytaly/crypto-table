@@ -2,8 +2,9 @@
   "exchanges": [
     {
       "name": "Binance",
-      "id": "Binance",
-      "url": "https://binance.com"
+      "id": "binance",
+      "url": "https://binance.com",
+      "quoteAssets": ["BTC", "ETH", "USDT", "BNB"]
     }
   ]
 }

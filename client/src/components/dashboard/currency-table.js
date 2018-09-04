@@ -7,7 +7,7 @@ import cn from 'classnames';
 import { entitiesSelector as tickerSelector } from '../../ducks/tickers';
 import { rowsSelector, columnsSelector } from '../../ducks/selected';
 import './currency-table.less';
-import AddRowField from './add-row-field';
+import AddTableField from './add-table-field';
 
 class CurrencyTable extends Component {
     constructor(props) {
@@ -169,7 +169,7 @@ class CurrencyTable extends Component {
                                     enableFixedRowScroll
                                 />
                             </div>
-                            <AddRowField />
+                            <AddTableField />
                         </div>
                     );
                 }}

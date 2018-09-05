@@ -5,24 +5,13 @@ import { connect } from 'react-redux';
 import get from 'lodash.get';
 import cn from 'classnames';
 import scrollbarSize from 'dom-helpers/util/scrollbarSize';
-import { Icon } from 'antd';
 
 import { entitiesSelector as tickerSelector } from '../../ducks/tickers';
 import { rowsSelector, columnsSelector, deleteColumn, deleteRow } from '../../ducks/selected';
 import './currency-table.less';
 import AddTableField from './add-table-field';
+import DeleteIcon from './delete-icon';
 
-const DeleteIcon = ({ onClick }) => (<Icon
-    type="delete"
-    theme="outlined"
-    style={{
-        fontSize: '1.2rem',
-        color: '#f5222d',
-    }}
-    onClick={onClick}
-/>);
-
-DeleteIcon.propTypes = { onClick: PropTypes.func.isRequired };
 
 class CurrencyTable extends Component {
     constructor(props) {

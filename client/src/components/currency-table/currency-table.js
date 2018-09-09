@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 import scrollbarSize from 'dom-helpers/util/scrollbarSize';
 import { AutoSizer, Grid, ScrollSync } from 'react-virtualized';
 import './currency-table.less';
+import StickyHeader from './sticky-header';
 
 export default class CurrencyTable extends React.PureComponent {
     constructor(props, context) {
@@ -152,26 +153,6 @@ export default class CurrencyTable extends React.PureComponent {
 
                                 return (
                                     <React.Fragment>
-                                        {/* LEFT CORNER HEADER */}
-                                        <div
-                                            className="grid-container-left"
-                                            style={{
-                                                height: headerRowHeight,
-                                                width: leftColumnWidth,
-                                            }}
-                                        >
-                                            <Grid
-                                                cellRenderer={this.renderLeftHeaderCell}
-                                                className="grid-header-corner"
-                                                width={leftColumnWidth}
-                                                height={headerRowHeight}
-                                                rowHeight={headerRowHeight}
-                                                columnWidth={leftColumnWidth}
-                                                rowCount={1}
-                                                columnCount={1}
-                                            />
-                                        </div>
-
                                         {/* LEFT COLUMN */}
                                         <div
                                             className="grid-container-left"
@@ -194,32 +175,61 @@ export default class CurrencyTable extends React.PureComponent {
                                             />
                                         </div>
 
-                                        {/* HEADER RIGHT */}
-                                        <div
-                                            className="grid-container-right"
-                                            style={{
-                                                left: leftColumnWidth,
-                                                height: headerRowHeight,
-                                                width: bodyWidth,
-                                            }}
+                                        <StickyHeader
+                                            top=".header"
+                                            bottom="#tableBody"
+                                            height={headerRowHeight}
                                         >
-                                            <Grid
-                                                className="grid-header"
-                                                columnWidth={columnWidth}
-                                                columnCount={columnCount}
-                                                height={headerRowHeight}
-                                                cellRenderer={this.renderHeaderCell}
-                                                rowHeight={headerRowHeight}
-                                                rowCount={1}
-                                                scrollLeft={scrollLeft}
-                                                width={bodyWidth}
-                                                ref={this.rightTopGrid}
-                                            />
-                                        </div>
+                                            <div>
+                                                {/* LEFT CORNER HEADER */}
+                                                <div
+                                                    className="grid-container-left"
+                                                    style={{
+                                                        height: headerRowHeight,
+                                                        width: leftColumnWidth,
+                                                    }}
+                                                >
+                                                    <Grid
+                                                        cellRenderer={this.renderLeftHeaderCell}
+                                                        className="grid-header-corner"
+                                                        width={leftColumnWidth}
+                                                        height={headerRowHeight}
+                                                        rowHeight={headerRowHeight}
+                                                        columnWidth={leftColumnWidth}
+                                                        rowCount={1}
+                                                        columnCount={1}
+                                                    />
+                                                </div>
+
+                                                {/* HEADER RIGHT */}
+                                                <div
+                                                    className="grid-container-right"
+                                                    style={{
+                                                        left: leftColumnWidth,
+                                                        height: headerRowHeight,
+                                                        width: bodyWidth,
+                                                    }}
+                                                >
+                                                    <Grid
+                                                        className="grid-header"
+                                                        columnWidth={columnWidth}
+                                                        columnCount={columnCount}
+                                                        height={headerRowHeight}
+                                                        cellRenderer={this.renderHeaderCell}
+                                                        rowHeight={headerRowHeight}
+                                                        rowCount={1}
+                                                        scrollLeft={scrollLeft}
+                                                        width={bodyWidth}
+                                                        ref={this.rightTopGrid}
+                                                    />
+                                                </div>
+                                            </div>
+                                        </StickyHeader>
 
                                         {/* TABLE BODY */}
                                         <div
                                             className="grid-container-right"
+                                            id="tableBody"
                                             style={{
                                                 left: leftColumnWidth,
                                                 top: headerRowHeight,

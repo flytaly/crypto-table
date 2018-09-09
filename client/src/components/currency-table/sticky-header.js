@@ -34,7 +34,10 @@ class StickyHeader extends Component {
         const { topBound, bottomBound } = this.state;
 
         if (dims.topBound !== topBound || dims.bottomBound !== bottomBound) {
-            this.setState(dims); // eslint-disable-line react/no-did-update-set-state
+            this.setState({ // eslint-disable-line react/no-did-update-set-state
+                topBound: dims.topBound,
+                bottomBound: dims.bottomBound,
+            });
         }
     }
 

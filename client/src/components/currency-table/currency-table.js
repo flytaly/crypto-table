@@ -2,7 +2,12 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import cn from 'classnames';
+import get from 'lodash.get';
+import { connect } from 'react-redux';
+import { entitiesSelector as tickerSelector } from '../../ducks/tickers';
+import { rowsSelector, columnsSelector, deleteColumn, deleteRow } from '../../ducks/selected';
 import StickyMultigrid from './sticky-multigrid';
+import AddTableField from './add-table-field';
 import './currency-table.less';
 
 class CurrencyTable extends Component {
@@ -99,20 +104,24 @@ class CurrencyTable extends Component {
     };
 
     renderBodyCell = ({ columnIndex, key, rowIndex, style }) => {
+        const { rows, columns, tickers } = this.props;
+
+        const baseAsset = rows[rowIndex];
+        const { exchange, quoteAsset } = columns[columnIndex];
+
         const className = cn({
             'grid-cell': true,
             'hovered-row': rowIndex === this.state.hoveredRowIndex,
         });
 
         return (
-
             <div // eslint-disable-line jsx-a11y/mouse-events-have-key-events
                 className={className}
                 key={key}
                 style={style}
                 onMouseOver={() => this.mouseOverHandler(rowIndex, columnIndex)}
             >
-                {'0000.00000000'}
+                {get(tickers, [exchange, baseAsset, quoteAsset, 'last_price'])}
             </div>
         );
     };
@@ -134,50 +143,49 @@ class CurrencyTable extends Component {
         };
 
         return (
-            <StickyMultigrid
-                onMouseLeave={this.mouseLeaveHandler}
+            <React.Fragment>
+                <div onMouseLeave={this.mouseLeaveHandler}>
+                    <StickyMultigrid
+                        rowCount={rows.length}
+                        columnCount={columns.length}
 
-                rowCount={rows.length}
-                columnCount={columns.length}
+                        renderLeftHeaderCell={this.renderLeftHeaderCell}
+                        renderHeaderCell={this.renderHeaderCell}
+                        renderLeftCell={this.renderLeftCell}
+                        renderBodyCell={this.renderBodyCell}
 
-                renderLeftHeaderCell={this.renderLeftHeaderCell}
-                renderHeaderCell={this.renderHeaderCell}
-                renderLeftCell={this.renderLeftCell}
-                renderBodyCell={this.renderBodyCell}
+                        columnWidth={columnWidth}
+                        rowHeight={rowHeight}
+                        headerRowHeight={headerRowHeight}
+                        leftColumnWidth={leftColumnWidth}
 
-                columnWidth={columnWidth}
-                rowHeight={rowHeight}
-                headerRowHeight={headerRowHeight}
-                leftColumnWidth={leftColumnWidth}
+                        /* eslint-disable no-return-assign */
+                        leftGridRef={ref => this.leftGrid = ref}
+                        rightGridRef={ref => this.rightGrid = ref}
+                        rightTopGridRef={ref => this.rightTopGrid = ref}
 
-                /* eslint-disable no-return-assign */
-                leftGridRef={ref => this.leftGrid = ref}
-                rightGridRef={ref => this.rightGrid = ref}
-                rightTopGridRef={ref => this.rightTopGrid = ref}
-
-                {...classNames}
-            />
+                        {...classNames}
+                    />
+                </div>
+                <AddTableField />
+            </React.Fragment>
         );
     }
 }
 
 CurrencyTable.propTypes = {
-    rows: PropTypes.arrayOf(PropTypes.string),
-    columns: PropTypes.arrayOf(PropTypes.object),
+    rows: PropTypes.arrayOf(PropTypes.string).isRequired,
+    columns: PropTypes.arrayOf(PropTypes.object).isRequired,
+    tickers: PropTypes.shape({}).isRequired,
+    deleteColumn: PropTypes.func.isRequired,
+    deleteRow: PropTypes.func.isRequired,
 };
 
-CurrencyTable.defaultProps = {
-    rows: ['---', '---', '---', '---', '---', '---', '---', '---', '---', '---', '---'],
-    columns: [{
-        quoteAsset: '---',
-        exchange: '-------',
-    }, {
-        quoteAsset: '---',
-        exchange: '-------',
-    }, {
-        quoteAsset: '----',
-        exchange: '-------',
-    }, {}, {}, {}],
-};
-
-export default CurrencyTable;
+export default connect(state => ({
+    tickers: tickerSelector(state),
+    rows: rowsSelector(state),
+    columns: columnsSelector(state),
+}), {
+    deleteColumn,
+    deleteRow,
+})(CurrencyTable);

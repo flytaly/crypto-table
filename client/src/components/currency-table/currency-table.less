@@ -2,22 +2,14 @@
 
 @grid-background-color: #ffffff;
 
-.grid-row {
-  border: @border-width-base @border-style-base @border-color-split;
-}
-
-.grid-container {
-  position: relative;
-
-  &-left,
-  &-right{
-    position: absolute;
-  }
-}
-
 .grid {
+
+  &-row {
+    border: @border-width-base @border-style-base @border-color-split;
+  }
+
   &-header,
-  &-header-corner {
+  &-header-left {
     background: @table-header-bg;
     color: @heading-color;
     border-bottom: @border-width-base @border-style-base @border-color-split;
@@ -25,7 +17,7 @@
     overflow: hidden !important;
   }
 
-  &-left-row {
+  &-left-column {
     //border-right: @border-width-base @border-style-base @border-color-split;
     background-color: @grid-background-color;
     overflow: hidden !important;

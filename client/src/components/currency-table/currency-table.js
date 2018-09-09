@@ -1,18 +1,17 @@
-import * as React from 'react';
-import cn from 'classnames';
+/* eslint-disable no-unused-expressions */
+import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import scrollbarSize from 'dom-helpers/util/scrollbarSize';
-import { AutoSizer, Grid, ScrollSync } from 'react-virtualized';
+import cn from 'classnames';
+import StickyMultigrid from './sticky-multigrid';
 import './currency-table.less';
-import StickyHeader from './sticky-header';
 
-export default class CurrencyTable extends React.PureComponent {
+class CurrencyTable extends Component {
     constructor(props, context) {
         super(props, context);
 
-        this.leftGrid = React.createRef();
-        this.rightGrid = React.createRef();
-        this.rightTopGrid = React.createRef();
+        this.leftGrid;
+        this.rightGrid;
+        this.rightTopGrid;
 
         this.state = {
             hoveredRowIndex: null,
@@ -26,13 +25,11 @@ export default class CurrencyTable extends React.PureComponent {
         };
     }
 
-
     componentDidUpdate() {
-        this.leftGrid.current.forceUpdate();
-        this.rightTopGrid.current.forceUpdate();
-        this.rightGrid.current.forceUpdate();
+        this.leftGrid && this.leftGrid.forceUpdate();
+        this.rightTopGrid && this.rightTopGrid.forceUpdate();
+        this.rightGrid && this.rightGrid.forceUpdate();
     }
-
 
     mouseLeaveHandler = () => this.setState({
         hoveredRowIndex: null,
@@ -129,139 +126,40 @@ export default class CurrencyTable extends React.PureComponent {
             leftColumnWidth,
         } = this.state;
 
-        const columnCount = columns.length;
-        const rowCount = rows.length;
-
-        const totalWidth = (columnCount * columnWidth) + leftColumnWidth;
-        const totalHeight = (rowCount * rowHeight) + headerRowHeight + scrollbarSize();
-        const bodyHeight = totalHeight - headerRowHeight;
-
+        const classNames = {
+            classNameLeftTop: 'grid-header-left',
+            classNameLeftBottom: 'grid-left-column',
+            classNameRightTop: 'grid-header',
+            classNameRightBottom: 'grid-body',
+        };
 
         return (
-            <ScrollSync>
-                {({ onScroll, scrollLeft, scrollTop }) => (
-                    <div
-                        className="grid-container"
-                        style={{ height: totalHeight }}
-                        onMouseLeave={this.mouseLeaveHandler}
-                    >
-                        <AutoSizer disableHeight>
-                            {({ width }) => {
-                                const bodyWidth = width < totalWidth
-                                    ? width - leftColumnWidth
-                                    : totalWidth - leftColumnWidth;
+            <StickyMultigrid
+                onMouseLeave={this.mouseLeaveHandler}
 
-                                return (
-                                    <React.Fragment>
-                                        {/* LEFT COLUMN */}
-                                        <div
-                                            className="grid-container-left"
-                                            style={{
-                                                top: headerRowHeight,
-                                                width: leftColumnWidth,
-                                            }}
-                                        >
-                                            <Grid
-                                                className="grid-left-row"
-                                                cellRenderer={this.renderLeftCell}
-                                                columnWidth={leftColumnWidth}
-                                                columnCount={1}
-                                                height={bodyHeight}
-                                                rowHeight={rowHeight}
-                                                rowCount={rowCount}
-                                                scrollTop={scrollTop}
-                                                width={leftColumnWidth}
-                                                ref={this.leftGrid}
-                                            />
-                                        </div>
+                rowCount={rows.length}
+                columnCount={columns.length}
 
-                                        <StickyHeader
-                                            top=".header"
-                                            bottom="#tableBody"
-                                            height={headerRowHeight}
-                                        >
-                                            <div>
-                                                {/* LEFT CORNER HEADER */}
-                                                <div
-                                                    className="grid-container-left"
-                                                    style={{
-                                                        height: headerRowHeight,
-                                                        width: leftColumnWidth,
-                                                    }}
-                                                >
-                                                    <Grid
-                                                        cellRenderer={this.renderLeftHeaderCell}
-                                                        className="grid-header-corner"
-                                                        width={leftColumnWidth}
-                                                        height={headerRowHeight}
-                                                        rowHeight={headerRowHeight}
-                                                        columnWidth={leftColumnWidth}
-                                                        rowCount={1}
-                                                        columnCount={1}
-                                                    />
-                                                </div>
+                renderLeftHeaderCell={this.renderLeftHeaderCell}
+                renderHeaderCell={this.renderHeaderCell}
+                renderLeftCell={this.renderLeftCell}
+                renderBodyCell={this.renderBodyCell}
 
-                                                {/* HEADER RIGHT */}
-                                                <div
-                                                    className="grid-container-right"
-                                                    style={{
-                                                        left: leftColumnWidth,
-                                                        height: headerRowHeight,
-                                                        width: bodyWidth,
-                                                    }}
-                                                >
-                                                    <Grid
-                                                        className="grid-header"
-                                                        columnWidth={columnWidth}
-                                                        columnCount={columnCount}
-                                                        height={headerRowHeight}
-                                                        cellRenderer={this.renderHeaderCell}
-                                                        rowHeight={headerRowHeight}
-                                                        rowCount={1}
-                                                        scrollLeft={scrollLeft}
-                                                        width={bodyWidth}
-                                                        ref={this.rightTopGrid}
-                                                    />
-                                                </div>
-                                            </div>
-                                        </StickyHeader>
+                columnWidth={columnWidth}
+                rowHeight={rowHeight}
+                headerRowHeight={headerRowHeight}
+                leftColumnWidth={leftColumnWidth}
 
-                                        {/* TABLE BODY */}
-                                        <div
-                                            className="grid-container-right"
-                                            id="tableBody"
-                                            style={{
-                                                left: leftColumnWidth,
-                                                top: headerRowHeight,
-                                                height: bodyHeight,
-                                                width: bodyWidth,
-                                            }}
-                                        >
-                                            <Grid
-                                                className="grid-body"
-                                                columnWidth={columnWidth}
-                                                columnCount={columnCount}
-                                                height={bodyHeight}
-                                                onScroll={onScroll}
-                                                cellRenderer={this.renderBodyCell}
-                                                rowHeight={rowHeight}
-                                                rowCount={rowCount}
-                                                width={bodyWidth}
-                                                ref={this.rightGrid}
-                                            />
-                                        </div>
-                                    </React.Fragment>
-                                );
-                            }
-                            }
-                        </AutoSizer>
-                    </div>
-                )}
-            </ScrollSync>
+                /* eslint-disable no-return-assign */
+                leftGridRef={ref => this.leftGrid = ref}
+                rightGridRef={ref => this.rightGrid = ref}
+                rightTopGridRef={ref => this.rightTopGrid = ref}
+
+                {...classNames}
+            />
         );
     }
 }
-
 
 CurrencyTable.propTypes = {
     rows: PropTypes.arrayOf(PropTypes.string),
@@ -282,3 +180,4 @@ CurrencyTable.defaultProps = {
     }, {}, {}, {}],
 };
 
+export default CurrencyTable;

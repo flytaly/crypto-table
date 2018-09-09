@@ -43,6 +43,7 @@ class AddTableField extends Component {
                     selectText="Add column"
                     type="cascader"
                 />
+                <div style={{ clear: 'both' }} />
             </React.Fragment>
         );
     }

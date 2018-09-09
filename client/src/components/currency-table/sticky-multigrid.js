@@ -37,7 +37,6 @@ class StickyMultigrid extends React.PureComponent {
         const totalHeight = (rowCount * rowHeight) + headerRowHeight + scrollbarSize();
         const bodyHeight = totalHeight - headerRowHeight;
 
-
         return (
             <ScrollSync>
                 {({ onScroll, scrollLeft, scrollTop }) => (

@@ -25,12 +25,17 @@ class StickyHeader extends Component {
 
     componentDidMount() {
         this.scrollTop = window.pageYOffset;
-        this.calcDimensions();
+        this.setState(this.calcDimensions()); // eslint-disable-line react/no-did-mount-set-state
         document.addEventListener('scroll', this.scrollHandler);
     }
 
-    componentWillUnmount() {
-        document.removeEventListener('scroll', this.scrollHandler);
+    componentDidUpdate() {
+        const dims = this.calcDimensions();
+        const { topBound, bottomBound } = this.state;
+
+        if (dims.topBound !== topBound || dims.bottomBound !== bottomBound) {
+            this.setState(dims); // eslint-disable-line react/no-did-update-set-state
+        }
     }
 
     getTopBoundary() {
@@ -73,7 +78,7 @@ class StickyHeader extends Component {
     calcDimensions() {
         const { top, bottom } = this.stickyContainer.getBoundingClientRect();
 
-        this.setState({
+        return ({
             stickyTopY: this.scrollTop + top,
             stickyBottomY: this.scrollTop + bottom,
             topBound: this.getTopBoundary(),

@@ -233,7 +233,7 @@ class CurrencyTable extends Component {
                                     theme="outlined"
                                     style={{
                                         fontSize: '1.2rem',
-                                        cursor: 'pointer',
+                                        cursor: 'context-menu',
                                     }}
                                 />
                             </Tooltip>

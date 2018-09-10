@@ -25,7 +25,15 @@ class StickyMultigrid extends PureComponent {
             index={rowIndex}
             style={style}
         >
-            {this.props.renderLeftCell({ key, rowIndex, style, ...rest })}
+            {this.props.renderLeftCell({
+                key,
+                rowIndex,
+                style: {
+                    cursor: 'move',
+                    ...style,
+                },
+                ...rest,
+            })}
         </SortableGridElem>
     );
 
@@ -40,6 +48,7 @@ class StickyMultigrid extends PureComponent {
                 columnIndex,
                 style: {
                     ...style,
+                    cursor: 'move',
                     zIndex: 15,
                 },
                 ...rest,
@@ -123,6 +132,7 @@ class StickyMultigrid extends PureComponent {
                                                 onSortOver={onSortOver(LEFT_GRID)}
                                                 axis="y"
                                                 lockAxis="y"
+                                                useWindowAsScrollContainer
                                             />
                                         </div>
 
@@ -160,17 +170,20 @@ class StickyMultigrid extends PureComponent {
                                                         left: leftColumnWidth,
                                                         height: headerRowHeight,
                                                         width: bodyWidth,
+                                                        overflow: 'hidden',
                                                     }}
                                                 >
                                                     <SortableGrid
                                                         className={classNameRightTop}
                                                         columnWidth={columnWidth}
                                                         columnCount={columnCount}
-                                                        height={headerRowHeight}
+                                                        // hide scrollbar inside parent container with overflow: hidden
+                                                        height={headerRowHeight + scrollbarSize()}
                                                         cellRenderer={this._renderHeaderCell}
                                                         rowHeight={headerRowHeight}
                                                         rowCount={1}
                                                         scrollLeft={scrollLeft}
+                                                        onScroll={onScroll}
                                                         width={bodyWidth}
                                                         innerGrid={rightTopGridRef}
 
@@ -180,6 +193,7 @@ class StickyMultigrid extends PureComponent {
                                                         onSortOver={onSortOver(HEADER_GRID)}
                                                         axis="x"
                                                         lockAxis="x"
+                                                        lockToContainerEdges
                                                     />
                                                 </div>
                                             </div>
@@ -202,6 +216,7 @@ class StickyMultigrid extends PureComponent {
                                                 columnCount={columnCount}
                                                 height={bodyHeight}
                                                 onScroll={onScroll}
+                                                scrollLeft={scrollLeft}
                                                 cellRenderer={renderBodyCell}
                                                 rowHeight={rowHeight}
                                                 rowCount={rowCount}

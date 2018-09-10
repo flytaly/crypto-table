@@ -66,13 +66,16 @@
     flex-direction: row;
   }
 
-  &-left-cell.hovered-row,
-  &-cell.hovered-row {
+  &-left-cell.hovered,
+  &-cell.hovered,
+  &-header-cell.hovered {
     background-color: @table-row-hover-bg;
   }
 
-  &-header-cell.hovered-column {
-    background-color: @table-row-hover-bg;
+  &-left-cell.selected,
+  &-header-cell.selected,
+  &-cell.selected {
+    background-color: @table-selected-row-bg;
   }
 
   &-header-data {

@@ -239,7 +239,8 @@ class CurrencyTable extends Component {
 
         const className = cn({
             'grid-left-cell': true,
-            'hovered-row': rowIndex === this.state.hoveredRowIndex,
+            hovered: rowIndex === this.state.hoveredRowIndex,
+            selected: rowsToDelete.has(rowIndex),
         });
 
         const changeHandler = ({ target }) => {
@@ -283,7 +284,8 @@ class CurrencyTable extends Component {
 
         const className = cn({
             'grid-header-cell': true,
-            'hovered-column': columnIndex === this.state.hoveredColumnIndex,
+            hovered: columnIndex === this.state.hoveredColumnIndex,
+            selected: columnsToDelete.has(columnIndex),
         });
 
         const checkboxes = showCheckboxes === COLUMNS;
@@ -294,7 +296,7 @@ class CurrencyTable extends Component {
             } else {
                 columnsToDelete.delete(columnIndex);
             }
-            this.setState({ rowsToDelete: new Set(columnsToDelete) });
+            this.setState({ columnsToDelete: new Set(columnsToDelete) });
         };
 
         return (
@@ -323,13 +325,15 @@ class CurrencyTable extends Component {
 
     renderBodyCell = ({ columnIndex, key, rowIndex, style }) => {
         const { rows, columns, tickers } = this.props;
+        const { hoveredRowIndex, columnsToDelete, rowsToDelete } = this.state;
 
         const baseAsset = rows[rowIndex];
         const { exchange, quoteAsset } = columns[columnIndex];
 
         const className = cn({
             'grid-cell': true,
-            'hovered-row': rowIndex === this.state.hoveredRowIndex,
+            hovered: rowIndex === hoveredRowIndex,
+            selected: columnsToDelete.has(columnIndex) || rowsToDelete.has(rowIndex),
         });
 
         return (

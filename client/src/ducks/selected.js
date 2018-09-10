@@ -132,10 +132,12 @@ export function* saveStateOnChange() {
 export function* loadStateFromStorage() {
     const storage = window.localStorage;
     const state = yield call([storage, storage.getItem], 'state');
-    yield put({
-        type: LOAD_STATE,
-        payload: JSON.parse(state),
-    });
+    if (state) {
+        yield put({
+            type: LOAD_STATE,
+            payload: JSON.parse(state),
+        });
+    }
 }
 
 export function* saga() {

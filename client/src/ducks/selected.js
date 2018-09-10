@@ -12,6 +12,8 @@ export const ADD_ROW = `${prefix}/ADD_ROW`;
 export const ADD_COLUMN = `${prefix}/ADD_COLUMN`;
 export const DELETE_ROWS = `${prefix}/DELETE_ROWS`;
 export const DELETE_COLUMNS = `${prefix}/DELETE_COLUMNS`;
+export const MOVE_ROW = `${prefix}/MOVE_ROW`;
+export const MOVE_COLUMN = `${prefix}/MOVE_COLUMN`;
 
 /**
  * Reducer
@@ -53,6 +55,16 @@ export default (state = initialState, action) =>
                     draft.columns = draft.columns.filter((elem, idx) => !payload.includes(idx));
                 }
                 break;
+            case MOVE_ROW: {
+                const { from, to } = payload;
+                draft.rows.splice(to, 0, draft.rows.splice(from, 1)[0]);
+                break;
+            }
+            case MOVE_COLUMN: {
+                const { from, to } = payload;
+                draft.columns.splice(to, 0, draft.columns.splice(from, 1)[0]);
+                break;
+            }
         }
     });
 
@@ -87,6 +99,16 @@ export const deleteRows = rowsIndexes => ({
 export const deleteColumns = columnsIndexes => ({
     type: DELETE_COLUMNS,
     payload: columnsIndexes,
+});
+
+export const moveRow = ({ from, to }) => ({
+    type: MOVE_ROW,
+    payload: { from, to },
+});
+
+export const moveColumn = ({ from, to }) => ({
+    type: MOVE_COLUMN,
+    payload: { from, to },
 });
 
 /**

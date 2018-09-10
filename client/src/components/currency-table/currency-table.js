@@ -8,7 +8,9 @@ import {
     Checkbox, Icon, Popover, Tooltip, Menu,
 } from 'antd';
 import { entitiesSelector as tickerSelector } from '../../ducks/tickers';
-import { rowsSelector, columnsSelector, deleteColumns, deleteRows } from '../../ducks/selected';
+import {
+    rowsSelector, columnsSelector, deleteColumns, deleteRows, moveRow, moveColumn,
+} from '../../ducks/selected';
 import StickyMultigrid from './sticky-multigrid';
 import AddTableField from './add-table-field';
 import './currency-table.less';
@@ -16,6 +18,8 @@ import './currency-table.less';
 
 const ROWS = 'rows';
 const COLUMNS = 'columns;';
+const LEFT_GRID = 'LeftGrid';
+const HEADER_GRID = 'HeaderGrid';
 
 class CurrencyTable extends Component {
     constructor(props, context) {
@@ -36,6 +40,7 @@ class CurrencyTable extends Component {
             columnsToDelete: new Set(),
 
             showPopover: false,
+            isDragging: false,
 
             // Sizes
             columnWidth: 130,
@@ -89,6 +94,21 @@ class CurrencyTable extends Component {
             showPopover: false,
             showCheckboxes: key,
         });
+    };
+
+    sortStartHandler = () => () => this.setState({ isDragging: true });
+
+    sortEndHandler = sortedGrid => ({ oldIndex, newIndex /* , collection */}) => {
+        if (oldIndex !== newIndex) {
+            if (sortedGrid === LEFT_GRID) {
+                this.props.moveRow({ from: oldIndex, to: newIndex });
+            }
+            if (sortedGrid === HEADER_GRID) {
+                this.props.moveColumn({ from: oldIndex, to: newIndex });
+            }
+        }
+
+        this.setState({ isDragging: false });
     };
 
     renderLeftHeaderCell = ({ key, style }) => {
@@ -235,7 +255,7 @@ class CurrencyTable extends Component {
 
     renderLeftCell = ({ key, rowIndex, style }) => {
         const { rows } = this.props;
-        const { showCheckboxes, rowsToDelete } = this.state;
+        const { showCheckboxes, rowsToDelete, isDragging } = this.state;
 
         const className = cn({
             'grid-left-cell': true,
@@ -261,7 +281,7 @@ class CurrencyTable extends Component {
                 style={style}
                 tabIndex={checkboxes ? null : 0}
                 role="rowheader"
-                onMouseOver={() => this.mouseOverHandler(rowIndex, null)}
+                onMouseOver={() => !isDragging && this.mouseOverHandler(rowIndex, null)}
                 onFocus={() => this.setState({ hoveredRowIndex: rowIndex })}
                 onBlur={() => this.setState({ hoveredRowIndex: null })}
             >
@@ -279,12 +299,12 @@ class CurrencyTable extends Component {
 
     renderHeaderCell = ({ key, columnIndex, style }) => {
         const { columns } = this.props;
-        const { showCheckboxes, columnsToDelete } = this.state;
+        const { isDragging, showCheckboxes, columnsToDelete } = this.state;
         const { exchange, quoteAsset } = columns[columnIndex];
 
         const className = cn({
             'grid-header-cell': true,
-            hovered: columnIndex === this.state.hoveredColumnIndex,
+            hovered: !isDragging && columnIndex === this.state.hoveredColumnIndex,
             selected: columnsToDelete.has(columnIndex),
         });
 
@@ -325,14 +345,14 @@ class CurrencyTable extends Component {
 
     renderBodyCell = ({ columnIndex, key, rowIndex, style }) => {
         const { rows, columns, tickers } = this.props;
-        const { hoveredRowIndex, columnsToDelete, rowsToDelete } = this.state;
+        const { hoveredRowIndex, isDragging, columnsToDelete, rowsToDelete } = this.state;
 
         const baseAsset = rows[rowIndex];
         const { exchange, quoteAsset } = columns[columnIndex];
 
         const className = cn({
             'grid-cell': true,
-            hovered: rowIndex === hoveredRowIndex,
+            hovered: !isDragging && rowIndex === hoveredRowIndex,
             selected: columnsToDelete.has(columnIndex) || rowsToDelete.has(rowIndex),
         });
 
@@ -387,6 +407,9 @@ class CurrencyTable extends Component {
                         rightTopGridRef={ref => this.rightTopGrid = ref}
                         leftTopGridRef={ref => this.leftTopGrid = ref}
 
+                        onSortStart={this.sortStartHandler}
+                        onSortEnd={this.sortEndHandler}
+
                         {...classNames}
                     />
                 </div>
@@ -402,6 +425,8 @@ CurrencyTable.propTypes = {
     tickers: PropTypes.shape({}).isRequired,
     deleteColumns: PropTypes.func,
     deleteRows: PropTypes.func,
+    moveRow: PropTypes.func,
+    moveColumn: PropTypes.func,
 };
 
 CurrencyTable.defaultProps = {
@@ -410,6 +435,12 @@ CurrencyTable.defaultProps = {
     },
     deleteRows: (rows) => {
         console.log('Delete rows:', rows);
+    },
+    moveRow: ({ from, to }) => {
+        console.log(`Move row from position ${from} to ${to}`);
+    },
+    moveColumn: ({ from, to }) => {
+        console.log(`Move column from position ${from} to ${to}`);
     },
 };
 
@@ -420,4 +451,6 @@ export default connect(state => ({
 }), {
     deleteColumns,
     deleteRows,
+    moveRow,
+    moveColumn,
 })(CurrencyTable);

@@ -1,19 +1,60 @@
+/* eslint-disable no-underscore-dangle */
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import scrollbarSize from 'dom-helpers/util/scrollbarSize';
 import { AutoSizer, Grid, ScrollSync } from 'react-virtualized';
+import { SortableContainer, SortableElement } from 'react-sortable-hoc';
 import './sticky-multigrid.less';
 import StickyHeader from './sticky-header';
 
+
+const LEFT_GRID = 'LeftGrid';
+const HEADER_GRID = 'HeaderGrid';
+
+const SortableGrid = SortableContainer(({ innerGridRef, ...rest }) => (<Grid
+    ref={innerGridRef}
+    {...rest}
+/>));
+
+const SortableGridElem = SortableElement(({ children }) => children);
+
 class StickyMultigrid extends PureComponent {
+    _renderLeftCell = ({ key, rowIndex, style, ...rest }) => (
+        <SortableGridElem
+            key={key}
+            index={rowIndex}
+            style={style}
+        >
+            {this.props.renderLeftCell({ key, rowIndex, style, ...rest })}
+        </SortableGridElem>
+    );
+
+    _renderHeaderCell = ({ key, columnIndex, style, ...rest }) => (
+        <SortableGridElem
+            key={key}
+            index={columnIndex}
+            style={style}
+        >
+            {this.props.renderHeaderCell({
+                key,
+                columnIndex,
+                style: {
+                    ...style,
+                    zIndex: 15,
+                },
+                ...rest,
+            })}
+        </SortableGridElem>
+    );
+
     render() {
         const {
             columnCount,
             rowCount,
 
             renderBodyCell,
-            renderHeaderCell,
-            renderLeftCell,
+            // renderHeaderCell,
+            // renderLeftCell,
             renderLeftHeaderCell,
 
             rightGridRef,
@@ -30,6 +71,11 @@ class StickyMultigrid extends PureComponent {
             classNameLeftBottom,
             classNameRightTop,
             classNameRightBottom,
+
+            onSortOver,
+            onSortMove,
+            onSortEnd,
+            onSortStart,
         } = this.props;
 
         const totalWidth = (columnCount * columnWidth) + leftColumnWidth;
@@ -59,9 +105,9 @@ class StickyMultigrid extends PureComponent {
                                                 width: leftColumnWidth,
                                             }}
                                         >
-                                            <Grid
+                                            <SortableGrid
                                                 className={classNameLeftBottom}
-                                                cellRenderer={renderLeftCell}
+                                                cellRenderer={this._renderLeftCell}
                                                 columnWidth={leftColumnWidth}
                                                 columnCount={1}
                                                 height={bodyHeight}
@@ -69,7 +115,14 @@ class StickyMultigrid extends PureComponent {
                                                 rowCount={rowCount}
                                                 scrollTop={scrollTop}
                                                 width={leftColumnWidth}
-                                                ref={leftGridRef}
+                                                innerGridRef={leftGridRef}
+
+                                                onSortEnd={onSortEnd(LEFT_GRID)}
+                                                onSortStart={onSortStart(LEFT_GRID)}
+                                                onSortMove={onSortMove(LEFT_GRID)}
+                                                onSortOver={onSortOver(LEFT_GRID)}
+                                                axis="y"
+                                                lockAxis="y"
                                             />
                                         </div>
 
@@ -109,17 +162,24 @@ class StickyMultigrid extends PureComponent {
                                                         width: bodyWidth,
                                                     }}
                                                 >
-                                                    <Grid
+                                                    <SortableGrid
                                                         className={classNameRightTop}
                                                         columnWidth={columnWidth}
                                                         columnCount={columnCount}
                                                         height={headerRowHeight}
-                                                        cellRenderer={renderHeaderCell}
+                                                        cellRenderer={this._renderHeaderCell}
                                                         rowHeight={headerRowHeight}
                                                         rowCount={1}
                                                         scrollLeft={scrollLeft}
                                                         width={bodyWidth}
-                                                        ref={rightTopGridRef}
+                                                        innerGrid={rightTopGridRef}
+
+                                                        onSortEnd={onSortEnd(HEADER_GRID)}
+                                                        onSortStart={onSortStart(HEADER_GRID)}
+                                                        onSortMove={onSortMove(HEADER_GRID)}
+                                                        onSortOver={onSortOver(HEADER_GRID)}
+                                                        axis="x"
+                                                        lockAxis="x"
                                                     />
                                                 </div>
                                             </div>
@@ -185,6 +245,11 @@ StickyMultigrid.propTypes = {
     leftTopGridRef: PropTypes.func,
     rightGridRef: PropTypes.func,
     rightTopGridRef: PropTypes.func,
+
+    onSortStart: PropTypes.func,
+    onSortMove: PropTypes.func,
+    onSortOver: PropTypes.func,
+    onSortEnd: PropTypes.func,
 };
 
 StickyMultigrid.defaultProps = {
@@ -199,6 +264,10 @@ StickyMultigrid.defaultProps = {
     rightGridRef: null,
     rightTopGridRef: null,
 
+    onSortStart: () => null,
+    onSortMove: () => null,
+    onSortOver: () => null,
+    onSortEnd: () => null,
 };
 
 export default StickyMultigrid;

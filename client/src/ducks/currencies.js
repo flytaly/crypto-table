@@ -47,12 +47,14 @@ export default (state = initialState, action) => {
 
 export const stateSelector = state => state[moduleName];
 export const entitiesSelector = createSelector(stateSelector, state => state.entities);
-
+export const loadingSelector = createSelector(stateSelector, state => state.loading)
 
 /**
  * Action Creators
  * */
-
+export const loadCurrencies = () => ({
+    type: LOAD_CURRENCIES_REQUEST,
+});
 
 /**
  * Sagas
@@ -78,5 +80,5 @@ export function* saga() {
         takeEvery(LOAD_CURRENCIES_REQUEST, loadCurrenciesSaga),
     ]);
 
-    yield loadCurrenciesSaga();
+    // yield loadCurrenciesSaga();
 }

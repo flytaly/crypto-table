@@ -4,16 +4,19 @@ import PropTypes from 'prop-types';
 
 const { Option } = Select;
 
-// eslint-disable-next-line react/prop-types
-const Selection = ({ type, listData, selectText, onChange }) => {
+const Selection = ({
+    // eslint-disable-next-line react/prop-types
+    type, listData, selectText, onChange, isLoading,
+}) => {
     const common = {
         showSearch: true,
         style: {
             float: 'left',
             width: '150px',
         },
-        placeholder: selectText,
+        placeholder: isLoading ? 'Loading...' : selectText,
         value: undefined,
+        disabled: isLoading,
     };
 
     return type === 'cascader' ? (
@@ -47,6 +50,14 @@ class SelectorButton extends Component {
 
     // handleBlur = () => this.setState({ showRowSelector: false });
 
+    clickHandler = () => {
+        const { onClickAction } = this.props;
+        if (onClickAction) {
+            onClickAction();
+        }
+        this.setState({ showRowSelector: !this.state.showRowSelector });
+    };
+
     render() {
         const { showRowSelector } = this.state;
         const { buttonText } = this.props;
@@ -55,7 +66,7 @@ class SelectorButton extends Component {
                 {!showRowSelector
                     ? (
                         <Button
-                            onClick={() => this.setState({ showRowSelector: !showRowSelector })}
+                            onClick={this.clickHandler}
                             type="dashed"
                             style={{
                                 float: 'left',
@@ -79,12 +90,16 @@ SelectorButton.propTypes = {
     buttonText: PropTypes.string,
     selectText: PropTypes.string,
     type: PropTypes.string,
+    isLoading: PropTypes.bool,
+    onClickAction: PropTypes.func,
 };
 
 SelectorButton.defaultProps = {
     buttonText: '',
     selectText: '',
     type: 'select',
+    isLoading: false,
+    onClickAction: null,
 };
 
 export default SelectorButton;

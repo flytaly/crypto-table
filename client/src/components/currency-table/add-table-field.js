@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import connect from 'react-redux/es/connect/connect';
 import PropTypes from 'prop-types';
 import SelectorButton from './selector-button';
-import { entitiesSelector as currenciesSelector } from '../../ducks/currencies';
+import { entitiesSelector as currenciesSelector, loadingSelector, loadCurrencies } from '../../ducks/currencies';
 import { entitiesSelector as exchangesSelector } from '../../ducks/exchanges';
 import { addRow, addColumn } from '../../ducks/selected';
 
@@ -35,6 +35,8 @@ class AddTableField extends Component {
                     listData={baseCurrenciesList}
                     buttonText="Add row"
                     selectText="Select a currency"
+                    isLoading={this.props.isLoading}
+                    onClickAction={() => this.props.loadCurrencies()}
                 />
                 <SelectorButton
                     onChange={this.props.addColumn}
@@ -54,15 +56,23 @@ AddTableField.propTypes = {
     exchanges: PropTypes.shape({}).isRequired,
     addRow: PropTypes.func.isRequired,
     addColumn: PropTypes.func.isRequired,
+    isLoading: PropTypes.bool,
+    loadCurrencies: PropTypes.func.isRequired,
+};
+
+AddTableField.defaultProps = {
+    isLoading: false,
 };
 
 const mapStateToProps = state => ({
     currencies: currenciesSelector(state),
     exchanges: exchangesSelector(state),
+    isLoading: loadingSelector(state),
 });
 
 export default connect(mapStateToProps, {
     addRow,
     addColumn,
+    loadCurrencies,
 })(AddTableField);
 

@@ -4,17 +4,25 @@ import PropTypes from 'prop-types';
 import cn from 'classnames';
 import get from 'lodash.get';
 import { connect } from 'react-redux';
+import {
+    Checkbox, Icon, Popover, Tooltip, Menu,
+} from 'antd';
 import { entitiesSelector as tickerSelector } from '../../ducks/tickers';
-import { rowsSelector, columnsSelector, deleteColumn, deleteRow } from '../../ducks/selected';
+import { rowsSelector, columnsSelector, deleteColumns, deleteRows } from '../../ducks/selected';
 import StickyMultigrid from './sticky-multigrid';
 import AddTableField from './add-table-field';
 import './currency-table.less';
+
+
+const ROWS = 'rows';
+const COLUMNS = 'columns;';
 
 class CurrencyTable extends Component {
     constructor(props, context) {
         super(props, context);
 
         this.leftGrid;
+        this.leftTopGrid;
         this.rightGrid;
         this.rightTopGrid;
 
@@ -22,9 +30,16 @@ class CurrencyTable extends Component {
             hoveredRowIndex: null,
             hoveredColumnIndex: null,
 
+            showCheckboxes: null, // columns, rows, null
+
+            rowsToDelete: new Set(),
+            columnsToDelete: new Set(),
+
+            showPopover: false,
+
             // Sizes
             columnWidth: 130,
-            leftColumnWidth: 70,
+            leftColumnWidth: 100,
             rowHeight: 40,
             headerRowHeight: 50,
         };
@@ -34,7 +49,30 @@ class CurrencyTable extends Component {
         this.leftGrid && this.leftGrid.forceUpdate();
         this.rightTopGrid && this.rightTopGrid.forceUpdate();
         this.rightGrid && this.rightGrid.forceUpdate();
+        this.leftTopGrid && this.leftTopGrid.forceUpdate();
     }
+
+    deleteSelectedRows = () => {
+        const { rowsToDelete } = this.state;
+        const { deleteRows } = this.props; // eslint-disable-line no-shadow
+
+        deleteRows([...rowsToDelete]);
+        this.setState({
+            rowsToDelete: new Set(),
+            showCheckboxes: false,
+        });
+    };
+
+    deleteSelectedColumns = () => {
+        const { columnsToDelete } = this.state;
+        const { deleteColumns } = this.props; // eslint-disable-line no-shadow
+
+        deleteColumns([...columnsToDelete]);
+        this.setState({
+            columnsToDelete: new Set(),
+            showCheckboxes: false,
+        });
+    };
 
     mouseLeaveHandler = () => this.setState({
         hoveredRowIndex: null,
@@ -46,39 +84,201 @@ class CurrencyTable extends Component {
         hoveredColumnIndex: colIdx,
     });
 
-    renderLeftHeaderCell = ({ key, style }) => (
-        <div // eslint-disable-line jsx-a11y/mouse-events-have-key-events
-            style={style}
-            key={key}
-            onMouseOver={() => this.mouseOverHandler(null, null)}
-        />);
+    handleEditMenuClick = ({ key }) => {
+        this.setState({
+            showPopover: false,
+            showCheckboxes: key,
+        });
+    };
+
+    renderLeftHeaderCell = ({ key, style }) => {
+        const { showCheckboxes, rowsToDelete, columnsToDelete } = this.state;
+        const { rows, columns } = this.props;
+
+        const popoverContent = (
+            <Menu
+                onClick={this.handleEditMenuClick}
+            >
+                <Menu.Item key={ROWS}>
+                    Delete rows...
+                </Menu.Item>
+                <Menu.Item key={COLUMNS}>
+                    Delete columns...
+                </Menu.Item>
+            </Menu>
+        );
+
+        const selectAllRows = ({ target }) => this.setState({
+            rowsToDelete: target.checked
+                ? rows.reduce((acc, curr, idx) => acc.add(idx), new Set())
+                : new Set(),
+        });
+
+        const selectAllCols = ({ target }) => this.setState({
+            columnsToDelete: target.checked
+                ? columns.reduce((acc, curr, idx) => acc.add(idx), new Set())
+                : new Set(),
+        });
+
+        const cellContent = () => {
+            switch (showCheckboxes) {
+                case ROWS:
+                    return (
+                        <div>
+                            <Checkbox
+                                indeterminate={rowsToDelete.size && rowsToDelete.size < rows.length}
+                                checked={rowsToDelete.size === rows.length}
+                                onChange={selectAllRows}
+                            />
+                            <Icon
+                                type="delete"
+                                title="Delete rows"
+                                theme="twoTone"
+                                twoToneColor="#f5222d"
+                                cursor="pointer"
+                                onClick={this.deleteSelectedRows}
+                                style={{
+                                    fontSize: '1.4rem',
+                                    marginLeft: '8px',
+                                    cursor: 'pointer',
+                                }}
+                            />
+                            <Icon
+                                type="stop"
+                                theme="outlined"
+                                title="Cancel"
+                                onClick={() => this.setState({
+                                    showPopover: false,
+                                    showCheckboxes: key,
+                                    rowsToDelete: new Set(),
+                                })}
+                                style={{
+                                    fontSize: '1.4rem',
+                                    marginLeft: '8px',
+                                    cursor: 'pointer',
+                                }}
+                            />
+                        </div>
+                    );
+                case COLUMNS:
+                    return (
+                        <div>
+                            <Checkbox
+                                indeterminate={columnsToDelete.size && columnsToDelete.size < columns.length}
+                                checked={columnsToDelete.size === columns.length}
+                                onChange={selectAllCols}
+                            />
+                            <Icon
+                                type="delete"
+                                title="Delete columns"
+                                theme="twoTone"
+                                twoToneColor="#f5222d"
+                                cursor="pointer"
+                                onClick={this.deleteSelectedColumns}
+                                style={{
+                                    fontSize: '1.4rem',
+                                    marginLeft: '8px',
+                                    cursor: 'pointer',
+                                }}
+                            />
+                            <Icon
+                                type="stop"
+                                theme="outlined"
+                                title="Cancel"
+                                onClick={() => this.setState({
+                                    showPopover: false,
+                                    showCheckboxes: key,
+                                    columnsToDelete: new Set(),
+                                })}
+                                style={{
+                                    fontSize: '1.4rem',
+                                    marginLeft: '8px',
+                                    cursor: 'pointer',
+                                }}
+                            />
+                        </div>
+                    );
+                default:
+                    return (
+                        <Popover
+                            content={popoverContent}
+                            trigger="click"
+                            placement="bottomRight"
+                            visible={this.state.showPopover}
+                            onVisibleChange={showPopover => this.setState({ showPopover })}
+                        >
+                            <Tooltip placement="right" title={<span>Edit table</span>}>
+                                <Icon
+                                    type="form"
+                                    theme="outlined"
+                                    style={{
+                                        fontSize: '1.2rem',
+                                        cursor: 'pointer',
+                                    }}
+                                />
+                            </Tooltip>
+                        </Popover>
+                    );
+            }
+        };
+
+        return (
+            <div // eslint-disable-line jsx-a11y/mouse-events-have-key-events
+                style={style}
+                key={key}
+                onMouseOver={() => this.mouseOverHandler(null, null)}
+                className="grid-header-left-cell"
+            >
+                {cellContent()}
+            </div>);
+    };
 
     renderLeftCell = ({ key, rowIndex, style }) => {
         const { rows } = this.props;
+        const { showCheckboxes, rowsToDelete } = this.state;
 
         const className = cn({
             'grid-left-cell': true,
             'hovered-row': rowIndex === this.state.hoveredRowIndex,
         });
 
+        const changeHandler = ({ target }) => {
+            if (target.checked) {
+                rowsToDelete.add(rowIndex);
+            } else {
+                rowsToDelete.delete(rowIndex);
+            }
+            this.setState({ rowsToDelete: new Set(rowsToDelete) });
+        };
+
+        const checkboxes = showCheckboxes === ROWS;
+
         return (
             <div
                 className={className}
                 key={key}
                 style={style}
-                tabIndex={0}
+                tabIndex={checkboxes ? null : 0}
                 role="rowheader"
                 onMouseOver={() => this.mouseOverHandler(rowIndex, null)}
                 onFocus={() => this.setState({ hoveredRowIndex: rowIndex })}
                 onBlur={() => this.setState({ hoveredRowIndex: null })}
             >
-                {rows[rowIndex]}
+                {checkboxes
+                    ? (
+                        <Checkbox
+                            checked={rowsToDelete.has(rowIndex)}
+                            onChange={changeHandler}
+                        >{rows[rowIndex]}
+                        </Checkbox>)
+                    : rows[rowIndex]}
             </div>
         );
     };
 
     renderHeaderCell = ({ key, columnIndex, style }) => {
         const { columns } = this.props;
+        const { showCheckboxes, columnsToDelete } = this.state;
         const { exchange, quoteAsset } = columns[columnIndex];
 
         const className = cn({
@@ -86,19 +286,37 @@ class CurrencyTable extends Component {
             'hovered-column': columnIndex === this.state.hoveredColumnIndex,
         });
 
+        const checkboxes = showCheckboxes === COLUMNS;
+
+        const changeHandler = ({ target }) => {
+            if (target.checked) {
+                columnsToDelete.add(columnIndex);
+            } else {
+                columnsToDelete.delete(columnIndex);
+            }
+            this.setState({ rowsToDelete: new Set(columnsToDelete) });
+        };
+
         return (
             <div
                 className={className}
                 key={key}
                 style={style}
-                tabIndex={0}
+                tabIndex={checkboxes ? null : 0}
                 role="columnheader"
                 onMouseOver={() => this.mouseOverHandler(null, columnIndex)}
                 onFocus={() => this.setState({ hoveredColumnIndex: columnIndex })}
                 onBlur={() => this.setState({ hoveredColumnIndex: null })}
             >
-                <div className="quoteAsset">{quoteAsset}</div>
-                <div className="exchange">{exchange}</div>
+                {checkboxes
+                    ? <Checkbox
+                        checked={columnsToDelete.has(columnIndex)}
+                        onChange={changeHandler}
+                    /> : null}
+                <div className="grid-header-data">
+                    <div className="quoteAsset">{quoteAsset}</div>
+                    <div className="exchange">{exchange}</div>
+                </div>
             </div>
         );
     };
@@ -163,6 +381,7 @@ class CurrencyTable extends Component {
                         leftGridRef={ref => this.leftGrid = ref}
                         rightGridRef={ref => this.rightGrid = ref}
                         rightTopGridRef={ref => this.rightTopGrid = ref}
+                        leftTopGridRef={ref => this.leftTopGrid = ref}
 
                         {...classNames}
                     />
@@ -177,8 +396,17 @@ CurrencyTable.propTypes = {
     rows: PropTypes.arrayOf(PropTypes.string).isRequired,
     columns: PropTypes.arrayOf(PropTypes.object).isRequired,
     tickers: PropTypes.shape({}).isRequired,
-    deleteColumn: PropTypes.func.isRequired,
-    deleteRow: PropTypes.func.isRequired,
+    deleteColumns: PropTypes.func,
+    deleteRows: PropTypes.func,
+};
+
+CurrencyTable.defaultProps = {
+    deleteColumns: (columns) => {
+        console.log('Delete columns:', columns);
+    },
+    deleteRows: (rows) => {
+        console.log('Delete rows:', rows);
+    },
 };
 
 export default connect(state => ({
@@ -186,6 +414,6 @@ export default connect(state => ({
     rows: rowsSelector(state),
     columns: columnsSelector(state),
 }), {
-    deleteColumn,
-    deleteRow,
+    deleteColumns,
+    deleteRows,
 })(CurrencyTable);

@@ -1,12 +1,11 @@
-import * as React from 'react';
-import cn from 'classnames';
+import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import scrollbarSize from 'dom-helpers/util/scrollbarSize';
 import { AutoSizer, Grid, ScrollSync } from 'react-virtualized';
 import './sticky-multigrid.less';
 import StickyHeader from './sticky-header';
 
-class StickyMultigrid extends React.PureComponent {
+class StickyMultigrid extends PureComponent {
     render() {
         const {
             columnCount,

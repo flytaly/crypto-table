@@ -1,5 +1,8 @@
 import { createSelector } from 'reselect';
 import produce from 'immer';
+import {
+    all, call, takeEvery, select, put,
+} from 'redux-saga/effects';
 import { appName } from '../config';
 
 /**
@@ -14,6 +17,7 @@ export const DELETE_ROWS = `${prefix}/DELETE_ROWS`;
 export const DELETE_COLUMNS = `${prefix}/DELETE_COLUMNS`;
 export const MOVE_ROW = `${prefix}/MOVE_ROW`;
 export const MOVE_COLUMN = `${prefix}/MOVE_COLUMN`;
+export const LOAD_STATE = `${prefix}/LOAD_STATE`;
 
 /**
  * Reducer
@@ -36,6 +40,10 @@ export default (state = initialState, action) =>
     produce(state, (draft) => {
         const { type, payload } = action;
         switch (type) {
+            case LOAD_STATE:
+                draft.rows = payload.rows;
+                draft.columns = payload.columns;
+                break;
             case ADD_ROW:
                 draft.rows.push(payload);
                 break;
@@ -114,3 +122,32 @@ export const moveColumn = ({ from, to }) => ({
 /**
  * Sagas
  */
+
+export function* saveStateOnChange() {
+    const storage = window.localStorage;
+    const state = yield select(stateSelector);
+    yield call([storage, storage.setItem], 'state', JSON.stringify(state));
+}
+
+export function* loadStateFromStorage() {
+    const storage = window.localStorage;
+    const state = yield call([storage, storage.getItem], 'state');
+    yield put({
+        type: LOAD_STATE,
+        payload: JSON.parse(state),
+    });
+}
+
+export function* saga() {
+    yield all([
+        yield takeEvery([
+            ADD_ROW,
+            ADD_COLUMN,
+            DELETE_ROWS,
+            DELETE_COLUMNS,
+            MOVE_ROW,
+            MOVE_COLUMN], saveStateOnChange),
+    ]);
+
+    yield loadStateFromStorage();
+}

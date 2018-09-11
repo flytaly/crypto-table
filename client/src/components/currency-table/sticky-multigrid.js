@@ -3,7 +3,7 @@ import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import scrollbarSize from 'dom-helpers/util/scrollbarSize';
 import { AutoSizer, Grid, ScrollSync } from 'react-virtualized';
-import { SortableContainer, SortableElement } from 'react-sortable-hoc';
+import { SortableContainer, SortableElement, SortableHandle } from 'react-sortable-hoc';
 import './sticky-multigrid.less';
 import StickyHeader from './sticky-header';
 
@@ -11,12 +11,29 @@ import StickyHeader from './sticky-header';
 const LEFT_GRID = 'LeftGrid';
 const HEADER_GRID = 'HeaderGrid';
 
+const DragHandle = SortableHandle(() => (<div style={{
+    position: 'absolute',
+    top: '8px',
+    width: '6px',
+    height: 'calc(100% - 16px)',
+    cursor: 'move',
+    borderLeft: '2px dashed #D6D6D6',
+    borderRight: '2px dashed #D6D6D6',
+}}
+/>));
+
 const SortableGrid = SortableContainer(({ innerGridRef, ...rest }) => (<Grid
     ref={innerGridRef}
     {...rest}
 />));
 
-const SortableGridElem = SortableElement(({ children }) => children);
+const SortableGridElem = SortableElement(({ style, children, handle }) => (
+    <div style={style}>
+        {handle ? <DragHandle /> : null}
+        {children}
+    </div>
+));
+
 
 class StickyMultigrid extends PureComponent {
     _renderLeftCell = ({ key, rowIndex, style, ...rest }) => (
@@ -30,7 +47,6 @@ class StickyMultigrid extends PureComponent {
                 rowIndex,
                 style: {
                     cursor: 'move',
-                    ...style,
                 },
                 ...rest,
             })}
@@ -41,15 +57,14 @@ class StickyMultigrid extends PureComponent {
         <SortableGridElem
             key={key}
             index={columnIndex}
-            style={style}
+            style={{ ...style, zIndex: 15 }}
+            handle
         >
             {this.props.renderHeaderCell({
                 key,
                 columnIndex,
                 style: {
-                    ...style,
-                    cursor: 'move',
-                    zIndex: 15,
+                    // cursor: 'move',
                 },
                 ...rest,
             })}
@@ -193,6 +208,7 @@ class StickyMultigrid extends PureComponent {
                                                         onSortOver={onSortOver(HEADER_GRID)}
                                                         axis="x"
                                                         lockAxis="x"
+                                                        useDragHandle
                                                         lockToContainerEdges
                                                     />
                                                 </div>

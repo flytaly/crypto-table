@@ -31,7 +31,7 @@ class AddTableField extends Component {
         return (
             <React.Fragment>
                 <SelectorButton
-                    onChange={this.props.addRow}
+                    onSelect={this.props.addRow}
                     listData={baseCurrenciesList}
                     buttonText="Add row"
                     selectText="Select a currency"
@@ -39,7 +39,7 @@ class AddTableField extends Component {
                     onClickAction={() => this.props.loadCurrencies()}
                 />
                 <SelectorButton
-                    onChange={this.props.addColumn}
+                    onSelect={this.props.addColumn}
                     listData={quoteCurrenciesList}
                     buttonText="Add column"
                     selectText="Add column"

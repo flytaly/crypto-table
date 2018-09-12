@@ -1,54 +1,30 @@
 import React, { Component } from 'react';
-import { Cascader, Select, Button, Icon } from 'antd';
+import { AutoComplete, Cascader, Button, Icon } from 'antd';
 import PropTypes from 'prop-types';
-
-const { Option } = Select;
-
-const Selection = ({
-    // eslint-disable-next-line react/prop-types
-    type, listData, selectText, onChange, isLoading,
-}) => {
-    const common = {
-        showSearch: true,
-        style: {
-            float: 'left',
-            width: '150px',
-        },
-        placeholder: isLoading ? 'Loading...' : selectText,
-        value: undefined,
-        disabled: isLoading,
-    };
-
-    return type === 'cascader' ? (
-        <Cascader
-            {...common}
-            onChange={value => onChange(value)}
-            options={listData}
-        />
-    )
-        : (
-            <Select
-                {...common}
-                optionFilterProp="children"
-                onChange={value => onChange(value)}
-            >
-                {
-                    listData.map(({ value, key, text }) => (
-                        <Option value={value} key={key}>
-                            {text}
-                        </Option>
-                    ))
-                }
-            </Select>
-        );
-};
 
 class SelectorButton extends Component {
     state = {
         showRowSelector: false,
+        data: null,
+        value: null,
     };
 
     // handleBlur = () => this.setState({ showRowSelector: false });
+
+    handleSearch = (value) => {
+        this.setState({ value });
+        const { listData } = this.props; // eslint-disable-line react/prop-types
+        if (!value.length) {
+            this.setState({ data: null });
+            return;
+        }
+        const escape = s => s.replace(/[-\\^$*+?.()|[\]{}]/g, '\\$&');
+        const filtered = listData.filter(s => s.text.search(new RegExp(`(^|\\s|\\()${escape(value)}`, 'i')) !== -1);
+        if (filtered.length > 100) return;
+        this.setState({
+            data: filtered,
+        });
+    };
 
     clickHandler = () => {
         const { onClickAction } = this.props;
@@ -59,34 +35,63 @@ class SelectorButton extends Component {
     };
 
     render() {
-        const { showRowSelector } = this.state;
-        const { buttonText } = this.props;
-        return (
-            <div>
-                {!showRowSelector
-                    ? (
-                        <Button
-                            onClick={this.clickHandler}
-                            type="dashed"
-                            style={{
-                                float: 'left',
-                                width: '150px',
-                            }}
-                            htmlType="button"
-                        >
-                            <Icon type="plus" /> {buttonText}
-                        </Button>
-                    )
-                    : <Selection {...this.props} />
-                }
-            </div>
-        );
+        const { showRowSelector, value } = this.state;
+        const {
+            buttonText,
+            type, listData, selectText, onSelect, isLoading,
+        } = this.props;
+
+        if (!showRowSelector) {
+            return (
+                <Button
+                    onClick={this.clickHandler}
+                    type="dashed"
+                    style={{
+                        float: 'left',
+                        width: '150px',
+                    }}
+                    htmlType="button"
+                >
+                    <Icon type="plus" /> {buttonText}
+                </Button>
+            );
+        }
+
+        const common = {
+            style: {
+                float: 'left',
+                width: '150px',
+            },
+            disabled: isLoading,
+            placeholder: isLoading ? 'Loading...' : selectText,
+            autoFocus: true,
+        };
+
+        return type === 'cascader'
+            ? <Cascader
+                {...common}
+                onChange={onSelect}
+                value={null}
+                options={listData}
+                showSearch
+            />
+            : <AutoComplete
+                {...common}
+                dataSource={this.state.data}
+                onSelect={(val) => {
+                    onSelect(val);
+                    this.setState({ value: null, data: null });
+                }}
+                onSearch={this.handleSearch}
+                value={value}
+                allowClear
+            />;
     }
 }
 
 SelectorButton.propTypes = {
     listData: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
-    onChange: PropTypes.func.isRequired,
+    onSelect: PropTypes.func.isRequired,
     buttonText: PropTypes.string,
     selectText: PropTypes.string,
     type: PropTypes.string,

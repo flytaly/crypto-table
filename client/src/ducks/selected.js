@@ -17,7 +17,9 @@ export const DELETE_ROWS = `${prefix}/DELETE_ROWS`;
 export const DELETE_COLUMNS = `${prefix}/DELETE_COLUMNS`;
 export const MOVE_ROW = `${prefix}/MOVE_ROW`;
 export const MOVE_COLUMN = `${prefix}/MOVE_COLUMN`;
+export const SORT_COLUMN = `${prefix}/SORT_COLUMN`;
 export const LOAD_STATE = `${prefix}/LOAD_STATE`;
+export const SET_NEW_ROW_ORDER = `${prefix}/SET_NEW_ROW_ORDER`;
 
 /**
  * Reducer
@@ -32,6 +34,10 @@ export const initialState = {
         exchange: 'binance',
         quoteAsset: 'BTC',
     }],
+    columnSort: {
+        index: null,
+        sortOrder: null,
+    },
 };
 
 /* eslint-disable no-param-reassign */
@@ -43,6 +49,7 @@ export default (state = initialState, action) =>
             case LOAD_STATE:
                 draft.rows = payload.rows;
                 draft.columns = payload.columns;
+                draft.columnSort = payload.columnSort;
                 break;
             case ADD_ROW:
                 draft.rows.push(payload);
@@ -73,6 +80,16 @@ export default (state = initialState, action) =>
                 draft.columns.splice(to, 0, draft.columns.splice(from, 1)[0]);
                 break;
             }
+            case SORT_COLUMN: {
+                const { index, sortOrder } = payload;
+                draft.columnSort.index = index;
+                draft.columnSort.sortOrder = sortOrder;
+                break;
+            }
+            case SET_NEW_ROW_ORDER: {
+                draft.rows = payload;
+                break;
+            }
         }
     });
 
@@ -84,7 +101,7 @@ export default (state = initialState, action) =>
 export const stateSelector = state => state[moduleName];
 export const rowsSelector = createSelector(stateSelector, state => state.rows);
 export const columnsSelector = createSelector(stateSelector, state => state.columns);
-
+export const sortedColumnSelector = createSelector(stateSelector, state => state.columnSort);
 
 /**
  * Action Creators
@@ -119,6 +136,16 @@ export const moveColumn = ({ from, to }) => ({
     payload: { from, to },
 });
 
+export const sortByColumn = payload => ({
+    type: SORT_COLUMN,
+    payload,
+});
+
+export const saveRowOrderInStore = payload => ({
+    type: SET_NEW_ROW_ORDER,
+    payload,
+});
+
 /**
  * Sagas
  */
@@ -148,7 +175,9 @@ export function* saga() {
             DELETE_ROWS,
             DELETE_COLUMNS,
             MOVE_ROW,
-            MOVE_COLUMN], saveStateOnChange),
+            MOVE_COLUMN,
+            SORT_COLUMN,
+        ], saveStateOnChange),
     ]);
 
     yield loadStateFromStorage();

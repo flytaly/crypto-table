@@ -14,7 +14,8 @@ const HEADER_GRID = 'HeaderGrid';
 const DragHandle = SortableHandle(() => (<div style={{
     position: 'absolute',
     top: '8px',
-    width: '6px',
+    left: '8px',
+    width: '8px',
     height: 'calc(100% - 16px)',
     cursor: 'move',
     borderLeft: '2px dashed #D6D6D6',

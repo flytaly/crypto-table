@@ -1,4 +1,4 @@
-/* eslint-disable no-unused-expressions */
+/* eslint-disable no-unused-expressions,no-shadow */
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import cn from 'classnames';
@@ -9,7 +9,8 @@ import {
 } from 'antd';
 import { entitiesSelector as tickerSelector } from '../../ducks/tickers';
 import {
-    rowsSelector, columnsSelector, deleteColumns, deleteRows, moveRow, moveColumn,
+    rowsSelector, columnsSelector, sortedColumnSelector, deleteColumns,
+    deleteRows, moveRow, moveColumn, sortByColumn, saveRowOrderInStore,
 } from '../../ducks/selected';
 import StickyMultigrid from './sticky-multigrid';
 import AddTableField from './add-table-field';
@@ -20,19 +21,19 @@ const ROWS = 'rows';
 const COLUMNS = 'columns;';
 const LEFT_GRID = 'LeftGrid';
 const HEADER_GRID = 'HeaderGrid';
+const SORT_UP = 0;
+const SORT_DOWN = 1;
 
 class CurrencyTable extends Component {
     constructor(props, context) {
         super(props, context);
-
-        this.leftGrid;
-        this.leftTopGrid;
-        this.rightGrid;
-        this.rightTopGrid;
-
         this.state = {
             hoveredRowIndex: null,
             hoveredColumnIndex: null,
+
+            /** save rows before they will be sorted
+             * to restore their original order */
+            preSortedRows: [],
 
             showCheckboxes: null, // columns, rows, null
 
@@ -50,11 +51,18 @@ class CurrencyTable extends Component {
         };
     }
 
-    componentDidUpdate() {
+    componentDidUpdate(prevProps) {
         this.leftGrid && this.leftGrid.forceUpdate();
         this.rightTopGrid && this.rightTopGrid.forceUpdate();
         this.rightGrid && this.rightGrid.forceUpdate();
         this.leftTopGrid && this.leftTopGrid.forceUpdate();
+
+        // sort rows if new tickers have been received or rows added/removed
+        if (prevProps.tickers !== this.props.tickers
+            || prevProps.rows.length !== this.props.rows.length) {
+            const { index, sortOrder } = this.props.sortedColumn;
+            if (index && index < this.props.columns.length) { this.sortRowsByColumn(index, sortOrder); }
+        }
     }
 
     deleteSelectedRows = () => {
@@ -70,13 +78,86 @@ class CurrencyTable extends Component {
 
     deleteSelectedColumns = () => {
         const { columnsToDelete } = this.state;
-        const { deleteColumns } = this.props; // eslint-disable-line no-shadow
+        const { deleteColumns } = this.props;
+
+        this.resetSortingByColumn();
 
         deleteColumns([...columnsToDelete]);
         this.setState({
             columnsToDelete: new Set(),
             showCheckboxes: false,
         });
+    };
+
+    sortRowsByColumn = (columnIndex, sortOrder) => {
+        const { rows, columns, tickers, saveRowOrderInStore } = this.props;
+        const { exchange, quoteAsset } = columns[columnIndex];
+        const getValue = currency => parseFloat(get(tickers, [exchange, currency, quoteAsset, 'last_price']));
+
+        const sorted = rows.slice().sort((c1, c2) => {
+            const [val1, val2] = [getValue(c1), getValue(c2)];
+
+            if (!Number.isNaN(val1) && !Number.isNaN(val2)) {
+                return sortOrder === SORT_DOWN ? val1 - val2 : val2 - val1;
+            }
+
+            return Number.isNaN(val2) ? -1 : 1;
+        });
+
+        if (sorted.some((value, idx) => rows[idx] !== value)) {
+            saveRowOrderInStore(sorted);
+        }
+    };
+
+    resetSortingByColumn = () => {
+        const { sortByColumn } = this.props;
+
+        sortByColumn({
+            index: null,
+            sortOrder: SORT_UP,
+        });
+
+        this.setState({
+            preSortedRows: [],
+        });
+    };
+
+    /** Handle sorting columns changes */
+    headerClickHandler = (index) => {
+        const { preSortedRows } = this.state;
+        const { sortByColumn, saveRowOrderInStore, rows, sortedColumn } = this.props;
+        const { index: prevIndex, sortOrder } = sortedColumn;
+
+        if (prevIndex === null || prevIndex !== index) {
+            // isn't sorted column
+            this.setState({
+                preSortedRows: [...rows],
+            });
+            this.sortRowsByColumn(index, SORT_UP);
+            sortByColumn({
+                index,
+                sortOrder: SORT_UP,
+            });
+            return;
+        }
+
+        if (prevIndex === index && sortOrder === SORT_UP) {
+            // was sorted once
+            this.sortRowsByColumn(index, SORT_DOWN);
+            sortByColumn({
+                index,
+                sortOrder: SORT_DOWN,
+            });
+            return;
+        }
+
+        if (prevIndex === index && sortOrder === SORT_DOWN) {
+            // was sorted twice
+            if (preSortedRows.length) {
+                saveRowOrderInStore(preSortedRows);
+            }
+            this.resetSortingByColumn();
+        }
     };
 
     mouseLeaveHandler = () => this.setState({
@@ -98,13 +179,21 @@ class CurrencyTable extends Component {
 
     sortStartHandler = () => () => this.setState({ isDragging: true });
 
-    sortEndHandler = sortedGrid => ({ oldIndex, newIndex /* , collection */}) => {
+    sortEndHandler = sortedGrid => ({ oldIndex, newIndex /* , collection */ }) => {
         if (oldIndex !== newIndex) {
             if (sortedGrid === LEFT_GRID) {
-                this.props.moveRow({ from: oldIndex, to: newIndex });
+                this.resetSortingByColumn();
+                this.props.moveRow({
+                    from: oldIndex,
+                    to: newIndex,
+                });
             }
             if (sortedGrid === HEADER_GRID) {
-                this.props.moveColumn({ from: oldIndex, to: newIndex });
+                this.resetSortingByColumn();
+                this.props.moveColumn({
+                    from: oldIndex,
+                    to: newIndex,
+                });
             }
         }
 
@@ -298,8 +387,10 @@ class CurrencyTable extends Component {
     };
 
     renderHeaderCell = ({ key, columnIndex, style }) => {
-        const { columns } = this.props;
-        const { isDragging, showCheckboxes, columnsToDelete } = this.state;
+        const { columns, sortedColumn } = this.props;
+        const {
+            isDragging, showCheckboxes, columnsToDelete,
+        } = this.state;
         const { exchange, quoteAsset } = columns[columnIndex];
 
         const className = cn({
@@ -329,6 +420,9 @@ class CurrencyTable extends Component {
                 onMouseOver={() => this.mouseOverHandler(null, columnIndex)}
                 onFocus={() => this.setState({ hoveredColumnIndex: columnIndex })}
                 onBlur={() => this.setState({ hoveredColumnIndex: null })}
+                onClick={event => event.target.tagName !== 'INPUT'
+                    ? this.headerClickHandler(columnIndex) : null}
+                onKeyUp={({ key }) => key === 'Enter' ? this.headerClickHandler(columnIndex) : null}
             >
                 {checkboxes
                     ? <Checkbox
@@ -339,6 +433,19 @@ class CurrencyTable extends Component {
                     <div className="quoteAsset">{quoteAsset}</div>
                     <div className="exchange">{exchange}</div>
                 </div>
+
+                {sortedColumn.index === columnIndex ? (
+                    <div style={{
+                        position: 'absolute',
+                        right: '8px',
+                    }}
+                    >
+                        {sortedColumn.sortOrder === SORT_UP
+                            ? <Icon type="caret-up" theme="outlined" />
+                            : <Icon type="caret-down" theme="outlined" />
+                        }
+                    </div>)
+                    : null}
             </div>
         );
     };
@@ -427,6 +534,12 @@ CurrencyTable.propTypes = {
     deleteRows: PropTypes.func,
     moveRow: PropTypes.func,
     moveColumn: PropTypes.func,
+    sortByColumn: PropTypes.func,
+    sortedColumn: PropTypes.shape({
+        index: PropTypes.number,
+        sortOrder: PropTypes.oneOf([SORT_UP, SORT_DOWN]),
+    }),
+    saveRowOrderInStore: PropTypes.func,
 };
 
 CurrencyTable.defaultProps = {
@@ -442,15 +555,26 @@ CurrencyTable.defaultProps = {
     moveColumn: ({ from, to }) => {
         console.log(`Move column from position ${from} to ${to}`);
     },
+    sortByColumn: () => {
+        console.log('Column sorted');
+    },
+    sortedColumn: {
+        columnIndex: null,
+        sortOrder: SORT_UP,
+    },
+    saveRowOrderInStore: () => {},
 };
 
 export default connect(state => ({
     tickers: tickerSelector(state),
     rows: rowsSelector(state),
     columns: columnsSelector(state),
+    sortedColumn: sortedColumnSelector(state),
 }), {
     deleteColumns,
     deleteRows,
     moveRow,
     moveColumn,
+    sortByColumn,
+    saveRowOrderInStore,
 })(CurrencyTable);

@@ -177,7 +177,10 @@ class CurrencyTable extends Component {
         });
     };
 
-    sortStartHandler = () => () => this.setState({ isDragging: true });
+    sortStartHandler = (/* sortedGrid */) => (idxs, event) => {
+        if (event.preventDefault) event.preventDefault(); // prevent text selection
+        this.setState({ isDragging: true });
+    };
 
     sortEndHandler = sortedGrid => ({ oldIndex, newIndex /* , collection */ }) => {
         if (oldIndex !== newIndex) {
@@ -482,6 +485,7 @@ class CurrencyTable extends Component {
             rowHeight,
             headerRowHeight,
             leftColumnWidth,
+            isDragging,
         } = this.state;
 
         const classNames = {
@@ -493,7 +497,7 @@ class CurrencyTable extends Component {
 
         return (
             <React.Fragment>
-                <div onMouseLeave={this.mouseLeaveHandler}>
+                <div onMouseLeave={this.mouseLeaveHandler} style={{ cursor: isDragging ? 'move' : null }}>
                     <StickyMultigrid
                         rowCount={rows.length}
                         columnCount={columns.length}

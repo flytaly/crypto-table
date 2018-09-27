@@ -20,9 +20,11 @@ class SelectorButton extends Component {
         }
         const escape = s => s.replace(/[-\\^$*+?.()|[\]{}]/g, '\\$&');
         const filtered = listData.filter(s => s.text.search(new RegExp(`(^|\\s|\\()${escape(value)}`, 'i')) !== -1);
-        if (filtered.length > 100) return;
+
+        filtered.sort((a, b) => a.order - b.order);
+
         this.setState({
-            data: filtered,
+            data: filtered.slice(0, 7),
         });
     };
 
@@ -48,7 +50,7 @@ class SelectorButton extends Component {
                     type="dashed"
                     style={{
                         float: 'left',
-                        width: '150px',
+                        width: '180px',
                     }}
                     htmlType="button"
                 >
@@ -60,7 +62,7 @@ class SelectorButton extends Component {
         const common = {
             style: {
                 float: 'left',
-                width: '150px',
+                width: '180px',
             },
             disabled: isLoading,
             placeholder: isLoading ? 'Loading...' : selectText,

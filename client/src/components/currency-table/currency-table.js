@@ -178,7 +178,7 @@ class CurrencyTable extends Component {
     };
 
     sortStartHandler = (/* sortedGrid */) => (idxs, event) => {
-        if (event.preventDefault) event.preventDefault(); // prevent text selection
+        if (event.preventDefault) event.preventDefault(); /* prevent text selection */
         this.setState({ isDragging: true });
     };
 

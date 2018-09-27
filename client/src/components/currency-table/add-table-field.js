@@ -14,6 +14,7 @@ class AddTableField extends Component {
                 value: symbol,
                 key: symbol,
                 text: `${symbol} (${currencies[symbol].name})`,
+                order: currencies[symbol].sortOrder,
             }));
         const quoteCurrenciesList = Object.keys(exchanges)
             .map((ex) => {
@@ -34,7 +35,7 @@ class AddTableField extends Component {
                     onSelect={this.props.addRow}
                     listData={baseCurrenciesList}
                     buttonText="Add row"
-                    selectText="Select a currency"
+                    selectText="Search"
                     isLoading={this.props.isLoading}
                     onClickAction={() => this.props.loadCurrencies()}
                 />

@@ -1,6 +1,6 @@
 const low = require('lowdb');
 const FileSync = require('lowdb/adapters/FileSync');
-const getCurrenciesList = require('./get-currencies-list');
+const getCurrenciesList = require('./get-currencies');
 
 const { dbPath, dbDefaultPath, dbCurrenciesPath } = require('../config');
 

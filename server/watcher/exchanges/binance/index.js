@@ -35,7 +35,7 @@ module.exports = () => {
             if (pairInfo) {
                 let { baseAsset, quoteAsset } = pairInfo;
 
-                // Replace symbols to coinmarketcup naming
+                // Replace symbols to their naming in database file
                 baseAsset = formatCurrencies[baseAsset] ? formatCurrencies[baseAsset] : baseAsset;
                 quoteAsset = formatCurrencies[quoteAsset] ? formatCurrencies[quoteAsset] : quoteAsset;
 

@@ -2,7 +2,6 @@ import { all, put, takeEvery, call } from 'redux-saga/effects';
 import axios from 'axios';
 import { createSelector } from 'reselect';
 import { API_LOAD_CURRENCIES, appName } from '../config';
-import { arrayToObj } from './utils';
 
 /**
  * Constants
@@ -32,7 +31,7 @@ export default (state = initialState, action) => {
         case LOAD_CURRENCIES_START:
             return { ...state, loading: true, error: null };
         case LOAD_CURRENCIES_SUCCESS:
-            return { ...state, loading: false, entities: arrayToObj(payload, 'symbol') };
+            return { ...state, loading: false, entities: payload };
         case LOAD_CURRENCIES_FAIL:
             return { ...state, loading: false, error: payload };
 
@@ -47,7 +46,7 @@ export default (state = initialState, action) => {
 
 export const stateSelector = state => state[moduleName];
 export const entitiesSelector = createSelector(stateSelector, state => state.entities);
-export const loadingSelector = createSelector(stateSelector, state => state.loading)
+export const loadingSelector = createSelector(stateSelector, state => state.loading);
 
 /**
  * Action Creators
@@ -65,7 +64,7 @@ export function* loadCurrenciesSaga() {
         const { data } = yield call(axios, API_LOAD_CURRENCIES);
         yield put({
             type: LOAD_CURRENCIES_SUCCESS,
-            payload: Array.isArray(data) ? data : [],
+            payload: data || {},
         });
     } catch (error) {
         yield put({

@@ -1,5 +1,7 @@
 import io from 'socket.io-client';
-import { call, take, put, fork, takeEvery } from 'redux-saga/effects';
+import {
+    call, take, put, fork, takeEvery,
+} from 'redux-saga/effects';
 import { eventChannel } from 'redux-saga';
 import produce from 'immer';
 import { createSelector } from 'reselect';
@@ -24,21 +26,20 @@ export const initialState = {
 
 /* eslint-disable no-param-reassign */
 /* eslint-disable default-case */
-export default (state = initialState, action) =>
-    produce(state, (draft) => {
-        const { type, payload } = action;
-        switch (type) {
-            case UPDATE_TICKER:
-                draft.entities[payload.exchange] = payload.ticker;
-                break;
-        }
-    });
+export default (state = initialState, action) => produce(state, (draft) => {
+    const { type, payload } = action;
+    switch (type) {
+        case UPDATE_TICKER:
+            draft.entities[payload.exchange] = payload.ticker;
+            break;
+    }
+});
 
 /**
  * Selectors
  * */
-export const stateSelector = state => state[moduleName];
-export const entitiesSelector = createSelector(stateSelector, state => state.entities);
+export const stateSelector = (state) => state[moduleName];
+export const entitiesSelector = createSelector(stateSelector, (state) => state.entities);
 
 /**
  * Action Creators
@@ -49,7 +50,7 @@ export const entitiesSelector = createSelector(stateSelector, state => state.ent
  * Sagas
  */
 
-const createTickerChannel = socket => eventChannel((emit) => {
+const createTickerChannel = (socket) => eventChannel((emit) => {
     socket.on('ticker', (data) => {
         emit({ data });
     });
@@ -85,7 +86,7 @@ export function* watchTickers() {
 
         const wsChannel = yield call(createTickerChannel, socket);
 
-        yield takeEvery(wsChannel, function* ({ data }) {
+        yield takeEvery(wsChannel, function* updateTicker({ data }) {
             yield put({
                 type: UPDATE_TICKER,
                 payload: data,

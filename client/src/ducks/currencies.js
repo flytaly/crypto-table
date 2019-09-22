@@ -44,9 +44,9 @@ export default (state = initialState, action) => {
  * Selectors
  * */
 
-export const stateSelector = state => state[moduleName];
-export const entitiesSelector = createSelector(stateSelector, state => state.entities);
-export const loadingSelector = createSelector(stateSelector, state => state.loading);
+export const stateSelector = (state) => state[moduleName];
+export const entitiesSelector = createSelector(stateSelector, (state) => state.entities);
+export const loadingSelector = createSelector(stateSelector, (state) => state.loading);
 
 /**
  * Action Creators

@@ -18,8 +18,8 @@ class SelectorButton extends Component {
             this.setState({ data: null });
             return;
         }
-        const escape = s => s.replace(/[-\\^$*+?.()|[\]{}]/g, '\\$&');
-        const filtered = listData.filter(s => s.text.search(new RegExp(`(^|\\s|\\()${escape(value)}`, 'i')) !== -1);
+        const escape = (s) => s.replace(/[-\\^$*+?.()|[\]{}]/g, '\\$&');
+        const filtered = listData.filter((s) => s.text.search(new RegExp(`(^|\\s|\\()${escape(value)}`, 'i')) !== -1);
 
         filtered.sort((a, b) => a.order - b.order);
 
@@ -33,14 +33,13 @@ class SelectorButton extends Component {
         if (onClickAction) {
             onClickAction();
         }
-        this.setState({ showRowSelector: !this.state.showRowSelector });
+        this.setState((state) => ({ showRowSelector: !state.showRowSelector }));
     };
 
     render() {
         const { showRowSelector, value } = this.state;
         const {
-            buttonText,
-            type, listData, selectText, onSelect, isLoading,
+            buttonText, type, listData, selectText, onSelect, isLoading,
         } = this.props;
 
         if (!showRowSelector) {
@@ -54,7 +53,9 @@ class SelectorButton extends Component {
                     }}
                     htmlType="button"
                 >
-                    <Icon type="plus" /> {buttonText}
+                    <Icon type="plus" />
+                    {' '}
+                    {buttonText}
                 </Button>
             );
         }
@@ -70,24 +71,28 @@ class SelectorButton extends Component {
         };
 
         return type === 'cascader'
-            ? <Cascader
-                {...common}
-                onChange={onSelect}
-                value={null}
-                options={listData}
-                showSearch
-            />
-            : <AutoComplete
-                {...common}
-                dataSource={this.state.data}
-                onSelect={(val) => {
-                    onSelect(val);
-                    this.setState({ value: null, data: null });
-                }}
-                onSearch={this.handleSearch}
-                value={value}
-                allowClear
-            />;
+            ? (
+                <Cascader
+                    {...common}
+                    onChange={onSelect}
+                    value={null}
+                    options={listData}
+                    showSearch
+                />
+            )
+            : (
+                <AutoComplete
+                    {...common}
+                    dataSource={this.state.data}
+                    onSelect={(val) => {
+                        onSelect(val);
+                        this.setState({ value: null, data: null });
+                    }}
+                    onSearch={this.handleSearch}
+                    value={value}
+                    allowClear
+                />
+            );
     }
 }
 

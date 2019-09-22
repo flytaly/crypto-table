@@ -11,22 +11,26 @@ import StickyHeader from './sticky-header';
 const LEFT_GRID = 'LeftGrid';
 const HEADER_GRID = 'HeaderGrid';
 
-const DragHandle = SortableHandle(() => (<div style={{
-    position: 'absolute',
-    top: '8px',
-    left: '8px',
-    width: '8px',
-    height: 'calc(100% - 16px)',
-    cursor: 'move',
-    borderLeft: '2px dashed #D6D6D6',
-    borderRight: '2px dashed #D6D6D6',
-}}
-/>));
+const DragHandle = SortableHandle(() => (
+    <div style={{
+        position: 'absolute',
+        top: '8px',
+        left: '8px',
+        width: '8px',
+        height: 'calc(100% - 16px)',
+        cursor: 'move',
+        borderLeft: '2px dashed #D6D6D6',
+        borderRight: '2px dashed #D6D6D6',
+    }}
+    />
+));
 
-const SortableGrid = SortableContainer(({ innerGridRef, ...rest }) => (<Grid
-    ref={innerGridRef}
-    {...rest}
-/>));
+const SortableGrid = SortableContainer(({ innerGridRef, ...rest }) => (
+    <Grid
+        ref={innerGridRef}
+        {...rest}
+    />
+));
 
 const SortableGridElem = SortableElement(({ style, children, handle }) => (
     <div style={style}>
@@ -121,7 +125,7 @@ class StickyMultigrid extends PureComponent {
                                     : totalWidth - leftColumnWidth;
 
                                 return (
-                                    <React.Fragment>
+                                    <>
                                         {/* LEFT COLUMN */}
                                         <div
                                             className="grid-container-left"
@@ -241,10 +245,9 @@ class StickyMultigrid extends PureComponent {
                                                 ref={rightGridRef}
                                             />
                                         </div>
-                                    </React.Fragment>
+                                    </>
                                 );
-                            }
-                            }
+                            }}
                         </AutoSizer>
                     </div>
                 )}

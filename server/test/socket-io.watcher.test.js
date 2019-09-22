@@ -10,7 +10,7 @@ const socketURL = `${config.host}:${config.port}`;
 const clients = [];
 
 after((done) => {
-    clients.forEach(c => c.disconnect());
+    clients.forEach((c) => c.disconnect());
     server.close();
     done();
 });

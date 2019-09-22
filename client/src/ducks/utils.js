@@ -1,3 +1,4 @@
+/* eslint-disable import/prefer-default-export */
 /**
  * Create object with normilized data
  * @param {Array} arr - Array of objects

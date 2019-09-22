@@ -4,10 +4,6 @@ import { Provider } from 'react-redux';
 import App from './app';
 
 class Root extends Component {
-    static propTypes = {
-        store: PropTypes.shape({}).isRequired,
-    };
-
     render() {
         return (
             <Provider store={this.props.store}>
@@ -16,5 +12,9 @@ class Root extends Component {
         );
     }
 }
+
+Root.propTypes = {
+    store: PropTypes.shape({}).isRequired,
+};
 
 export default Root;

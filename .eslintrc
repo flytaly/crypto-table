@@ -34,6 +34,9 @@
                 "ImportDeclaration": { "minProperties": 5, "multiline": true, "consistent": true },
                 "ExportDeclaration": { "minProperties": 5, "multiline": true, "consistent": true }
             }
-        ]
+        ],
+        "react/jsx-props-no-spreading": "off",
+        "react/destructuring-assignment": "off",
+        "react/state-in-constructor": "off"
     }
 }

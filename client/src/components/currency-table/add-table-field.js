@@ -10,7 +10,7 @@ class AddTableField extends Component {
     render() {
         const { currencies, exchanges } = this.props;
         const baseCurrenciesList = Object.keys(currencies)
-            .map(symbol => ({
+            .map((symbol) => ({
                 value: symbol,
                 key: symbol,
                 text: `${symbol} (${currencies[symbol].name})`,
@@ -18,7 +18,7 @@ class AddTableField extends Component {
             }));
         const quoteCurrenciesList = Object.keys(exchanges)
             .map((ex) => {
-                const qoutes = exchanges[ex].quoteAssets.map(qoute => ({
+                const qoutes = exchanges[ex].quoteAssets.map((qoute) => ({
                     value: qoute,
                     label: qoute,
                 }));
@@ -30,7 +30,7 @@ class AddTableField extends Component {
             });
 
         return (
-            <React.Fragment>
+            <>
                 <SelectorButton
                     onSelect={this.props.addRow}
                     listData={baseCurrenciesList}
@@ -47,7 +47,7 @@ class AddTableField extends Component {
                     type="cascader"
                 />
                 <div style={{ clear: 'both' }} />
-            </React.Fragment>
+            </>
         );
     }
 }
@@ -65,7 +65,7 @@ AddTableField.defaultProps = {
     isLoading: false,
 };
 
-const mapStateToProps = state => ({
+const mapStateToProps = (state) => ({
     currencies: currenciesSelector(state),
     exchanges: exchangesSelector(state),
     isLoading: loadingSelector(state),
@@ -76,4 +76,3 @@ export default connect(mapStateToProps, {
     addColumn,
     loadCurrencies,
 })(AddTableField);
-

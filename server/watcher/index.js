@@ -15,7 +15,7 @@ function watcher(exchange, tickerCreator, interval) {
     const timerId = setInterval(async () => {
         const ticker = await exchangeTicker();
         if (!ticker.error) {
-            Object.keys(clients).forEach(id => clients[id].emit('ticker', { exchange, ticker }));
+            Object.keys(clients).forEach((id) => clients[id].emit('ticker', { exchange, ticker }));
         } else {
             console.error(`${exchange} error: `, ticker.error);
             exchangeTicker = tickerCreator();
@@ -26,7 +26,6 @@ function watcher(exchange, tickerCreator, interval) {
 }
 
 function runWatcher(platform = defaultPlatform) {
-
     timers[platform] = watcher(platform, platforms[platform], updateInterval);
 
     return timers;

@@ -12,9 +12,9 @@ module.exports = () => {
         // https://github.com/binance-exchange/binance-official-api-docs/blob/master/rest-api.md#exchange-information
         const { data: exchangeInfo } = await axios(`${baseURL}/api/v1/exchangeInfo`);
 
-        const trading = exchangeInfo.symbols.filter(s => s.status === 'TRADING');
-        const baseAssets = new Set(trading.map(s => s.baseAsset));
-        const quoteAssets = new Set(trading.map(s => s.quoteAsset));
+        const trading = exchangeInfo.symbols.filter((s) => s.status === 'TRADING');
+        const baseAssets = new Set(trading.map((s) => s.baseAsset));
+        const quoteAssets = new Set(trading.map((s) => s.quoteAsset));
         const symbols = exchangeInfo.symbols.reduce((acc, pair) => {
             acc[pair.symbol] = pair;
             return acc;
@@ -26,30 +26,29 @@ module.exports = () => {
      * Format ticker from {baseAsset1quoteAsset1: {price: xxx}, ...}
      * to [baseAsset1 : { quoteAsset1 : {last_price: xxx}, quoteAsset2 : {...}...}, ...]
      */
-    const formatTicker = (ticker, symbolsInfo) =>
-        ticker.reduce((acc, pair) => {
-            const { symbol, price } = pair;
-            const pairTicker = { last_price: price };
-            const pairInfo = symbolsInfo.symbols[symbol];
+    const formatTicker = (ticker, symbolsInfo) => ticker.reduce((acc, pair) => {
+        const { symbol, price } = pair;
+        const pairTicker = { last_price: price };
+        const pairInfo = symbolsInfo.symbols[symbol];
 
-            if (pairInfo) {
-                let { baseAsset, quoteAsset } = pairInfo;
+        if (pairInfo) {
+            let { baseAsset, quoteAsset } = pairInfo;
 
-                // Replace symbols to their naming in database file
-                baseAsset = formatCurrencies[baseAsset] ? formatCurrencies[baseAsset] : baseAsset;
-                quoteAsset = formatCurrencies[quoteAsset] ? formatCurrencies[quoteAsset] : quoteAsset;
+            // Replace symbols to their naming in database file
+            baseAsset = formatCurrencies[baseAsset] ? formatCurrencies[baseAsset] : baseAsset;
+            quoteAsset = formatCurrencies[quoteAsset] ? formatCurrencies[quoteAsset] : quoteAsset;
 
-                if (acc[baseAsset]) {
-                    acc[baseAsset][quoteAsset] = pairTicker;
-                } else {
-                    acc[baseAsset] = { [quoteAsset]: pairTicker };
-                }
+            if (acc[baseAsset]) {
+                acc[baseAsset][quoteAsset] = pairTicker;
             } else {
-                console.error('-->', `Couldn't find pair ${symbol}`);
+                acc[baseAsset] = { [quoteAsset]: pairTicker };
             }
+        } else {
+            console.error('-->', `Couldn't find pair ${symbol}`);
+        }
 
-            return acc;
-        }, {});
+        return acc;
+    }, {});
 
 
     async function getTicker() {

@@ -92,7 +92,7 @@ class CurrencyTable extends Component {
     sortRowsByColumn = (columnIndex, sortOrder) => {
         const { rows, columns, tickers, saveRowOrderInStore } = this.props;
         const { exchange, quoteAsset } = columns[columnIndex];
-        const getValue = currency => parseFloat(get(tickers, [exchange, currency, quoteAsset, 'last_price']));
+        const getValue = (currency) => parseFloat(get(tickers, [exchange, currency, quoteAsset, 'last_price']));
 
         const sorted = rows.slice().sort((c1, c2) => {
             const [val1, val2] = [getValue(c1), getValue(c2)];
@@ -182,7 +182,7 @@ class CurrencyTable extends Component {
         this.setState({ isDragging: true });
     };
 
-    sortEndHandler = sortedGrid => ({ oldIndex, newIndex /* , collection */ }) => {
+    sortEndHandler = (sortedGrid) => ({ oldIndex, newIndex /* , collection */ }) => {
         if (oldIndex !== newIndex) {
             if (sortedGrid === LEFT_GRID) {
                 this.resetSortingByColumn();
@@ -317,7 +317,7 @@ class CurrencyTable extends Component {
                             trigger="click"
                             placement="bottomRight"
                             visible={this.state.showPopover}
-                            onVisibleChange={showPopover => this.setState({ showPopover })}
+                            onVisibleChange={(showPopover) => this.setState({ showPopover })}
                         >
                             <Tooltip placement="right" title={<span>Edit table</span>}>
                                 <Icon
@@ -342,7 +342,8 @@ class CurrencyTable extends Component {
                 className="grid-header-left-cell"
             >
                 {cellContent()}
-            </div>);
+            </div>
+        );
     };
 
     renderLeftCell = ({ key, rowIndex, style }) => {
@@ -382,8 +383,10 @@ class CurrencyTable extends Component {
                         <Checkbox
                             checked={rowsToDelete.has(rowIndex)}
                             onChange={changeHandler}
-                        >{rows[rowIndex]}
-                        </Checkbox>)
+                        >
+                            {rows[rowIndex]}
+                        </Checkbox>
+                    )
                     : rows[rowIndex]}
             </div>
         );
@@ -423,15 +426,17 @@ class CurrencyTable extends Component {
                 onMouseOver={() => this.mouseOverHandler(null, columnIndex)}
                 onFocus={() => this.setState({ hoveredColumnIndex: columnIndex })}
                 onBlur={() => this.setState({ hoveredColumnIndex: null })}
-                onClick={event => event.target.tagName !== 'INPUT'
+                onClick={(event) => event.target.tagName !== 'INPUT'
                     ? this.headerClickHandler(columnIndex) : null}
                 onKeyUp={({ key }) => key === 'Enter' ? this.headerClickHandler(columnIndex) : null}
             >
                 {checkboxes
-                    ? <Checkbox
-                        checked={columnsToDelete.has(columnIndex)}
-                        onChange={changeHandler}
-                    /> : null}
+                    ? (
+                        <Checkbox
+                            checked={columnsToDelete.has(columnIndex)}
+                            onChange={changeHandler}
+                        />
+                    ) : null}
                 <div className="grid-header-data">
                     <div className="quoteAsset">{quoteAsset}</div>
                     <div className="exchange">{exchange}</div>
@@ -445,9 +450,9 @@ class CurrencyTable extends Component {
                     >
                         {sortedColumn.sortOrder === SORT_UP
                             ? <Icon type="caret-up" theme="outlined" />
-                            : <Icon type="caret-down" theme="outlined" />
-                        }
-                    </div>)
+                            : <Icon type="caret-down" theme="outlined" />}
+                    </div>
+                )
                     : null}
             </div>
         );
@@ -496,7 +501,7 @@ class CurrencyTable extends Component {
         };
 
         return (
-            <React.Fragment>
+            <>
                 <div onMouseLeave={this.mouseLeaveHandler} style={{ cursor: isDragging ? 'move' : null }}>
                     <StickyMultigrid
                         rowCount={rows.length}
@@ -513,10 +518,10 @@ class CurrencyTable extends Component {
                         leftColumnWidth={leftColumnWidth}
 
                         /* eslint-disable no-return-assign */
-                        leftGridRef={ref => this.leftGrid = ref}
-                        rightGridRef={ref => this.rightGrid = ref}
-                        rightTopGridRef={ref => this.rightTopGrid = ref}
-                        leftTopGridRef={ref => this.leftTopGrid = ref}
+                        leftGridRef={(ref) => this.leftGrid = ref}
+                        rightGridRef={(ref) => this.rightGrid = ref}
+                        rightTopGridRef={(ref) => this.rightTopGrid = ref}
+                        leftTopGridRef={(ref) => this.leftTopGrid = ref}
 
                         onSortStart={this.sortStartHandler}
                         onSortEnd={this.sortEndHandler}
@@ -525,7 +530,7 @@ class CurrencyTable extends Component {
                     />
                 </div>
                 <AddTableField />
-            </React.Fragment>
+            </>
         );
     }
 }
@@ -569,7 +574,7 @@ CurrencyTable.defaultProps = {
     saveRowOrderInStore: () => {},
 };
 
-export default connect(state => ({
+export default connect((state) => ({
     tickers: tickerSelector(state),
     rows: rowsSelector(state),
     columns: columnsSelector(state),

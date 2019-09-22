@@ -12,7 +12,7 @@ module.exports = (io) => {
 
         client.on('stopWatchers', () => {
             console.log('Socket.io: stop watchers');
-            Object.keys(timersIds).forEach(t => clearInterval(timersIds[t]));
+            Object.keys(timersIds).forEach((t) => clearInterval(timersIds[t]));
             timersIds = null;
         });
 
@@ -29,6 +29,5 @@ module.exports = (io) => {
             console.log('Socket.io: client unsubscribed');
             removeClient(client);
         });
-
     });
 };

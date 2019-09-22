@@ -67,6 +67,7 @@ export function* loadCurrenciesSaga() {
             payload: data || {},
         });
     } catch (error) {
+        console.error(error);
         yield put({
             type: LOAD_CURRENCIES_FAIL,
             payload: error,

@@ -66,6 +66,7 @@ export function* loadExchangesSaga() {
             payload: Array.isArray(data) ? data : [],
         });
     } catch (error) {
+        console.error(error);
         yield put({
             type: LOAD_EXCHANGES_FAIL,
             payload: error,

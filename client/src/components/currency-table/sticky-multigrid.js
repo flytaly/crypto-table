@@ -1,7 +1,7 @@
 /* eslint-disable no-underscore-dangle */
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import scrollbarSize from 'dom-helpers/util/scrollbarSize';
+import getScrollbarSize from 'dom-helpers/scrollbarSize';
 import { AutoSizer, Grid, ScrollSync } from 'react-virtualized';
 import { SortableContainer, SortableElement, SortableHandle } from 'react-sortable-hoc';
 import './sticky-multigrid.less';
@@ -104,7 +104,7 @@ class StickyMultigrid extends PureComponent {
         } = this.props;
 
         const totalWidth = (columnCount * columnWidth) + leftColumnWidth;
-        const totalHeight = (rowCount * rowHeight) + headerRowHeight + scrollbarSize();
+        const totalHeight = (rowCount * rowHeight) + headerRowHeight + getScrollbarSize();
         const bodyHeight = totalHeight - headerRowHeight;
 
         return (
@@ -194,7 +194,7 @@ class StickyMultigrid extends PureComponent {
                                                         columnWidth={columnWidth}
                                                         columnCount={columnCount}
                                                         // hide scrollbar inside parent container with overflow: hidden
-                                                        height={headerRowHeight + scrollbarSize()}
+                                                        height={headerRowHeight + getScrollbarSize()}
                                                         cellRenderer={this._renderHeaderCell}
                                                         rowHeight={headerRowHeight}
                                                         rowCount={1}

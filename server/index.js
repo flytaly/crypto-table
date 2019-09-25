@@ -4,6 +4,13 @@ const http = require('http').Server(app);
 
 const config = require('./config');
 
+require('dotenv').config();
+
+global.fetch = require('node-fetch');
+const cc = require('cryptocompare');
+
+cc.setApiKey(process.env.CC_API_KEY);
+
 app.set('port', config.port);
 
 // Socket.IO

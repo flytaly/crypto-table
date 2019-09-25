@@ -1,4 +1,5 @@
 const binance = require('./exchanges/binance');
+const cryptocompare = require('./exchanges/cryptocompare');
 const { updateInterval } = require('../config');
 
 const clients = {};
@@ -6,14 +7,16 @@ const timers = {};
 
 const platforms = {
     binance,
+    cryptocompare,
 };
-const defaultPlatform = 'binance';
+const enabledPlatforms = Object.keys(platforms);
 
-function watcher(exchange, tickerCreator, interval) {
+function watcher(exchange, tickerCreator, assets, interval) {
     let exchangeTicker = tickerCreator();
 
     const timerId = setInterval(async () => {
-        const ticker = await exchangeTicker();
+        const ticker = await exchangeTicker(assets);
+
         if (!ticker.error) {
             Object.keys(clients).forEach((id) => clients[id].emit('ticker', { exchange, ticker }));
         } else {
@@ -25,8 +28,10 @@ function watcher(exchange, tickerCreator, interval) {
     return timerId;
 }
 
-function runWatcher(platform = defaultPlatform) {
-    timers[platform] = watcher(platform, platforms[platform], updateInterval);
+function runWatchers(watchPlatforms = enabledPlatforms, assets) {
+    watchPlatforms.forEach((pl) => {
+        timers[pl] = watcher(pl, platforms[pl], assets, updateInterval);
+    });
 
     return timers;
 }
@@ -39,4 +44,4 @@ function removeClient(socketClient) {
     delete clients[socketClient.id];
 }
 
-module.exports = { addClient, removeClient, runWatcher };
+module.exports = { addClient, removeClient, runWatchers };

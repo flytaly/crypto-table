@@ -1,23 +1,42 @@
-const { runWatcher, removeClient, addClient } = require('../watcher');
+const { runWatchers, removeClient, addClient } = require('../watcher');
+
+// eslint-disable-next-line consistent-return
+const getPlatforms = (selectedAssets = {}) => {
+    const { quoteAssets } = selectedAssets;
+    if (quoteAssets && quoteAssets.length) {
+        const plats = quoteAssets.reduce((prev, curr) => {
+            const { exchange } = curr;
+            if (!prev.includes(exchange)) { prev.push(exchange); }
+            return prev;
+        }, []);
+        return plats;
+    }
+};
 
 module.exports = (io) => {
-    let timersIds;
+    let timersIds = {};
+    const stopWatchers = () => {
+        if (timersIds) {
+            Object.keys(timersIds).forEach((t) => clearInterval(timersIds[t]));
+            timersIds = {};
+        }
+    };
 
     io.on('connection', (client) => {
-        client.on('subscribeToUpdates', () => {
-            console.log('Socket.io: client subscribed');
-            if (!timersIds) timersIds = runWatcher();
+        client.on('subscribeToUpdates', (assets) => {
+            stopWatchers();
+            timersIds = runWatchers(getPlatforms(assets), assets);
             addClient(client);
         });
 
         client.on('stopWatchers', () => {
             console.log('Socket.io: stop watchers');
-            Object.keys(timersIds).forEach((t) => clearInterval(timersIds[t]));
-            timersIds = null;
+            stopWatchers();
         });
 
-        client.on('runWatcher', () => {
-            if (!timersIds) timersIds = runWatcher();
+        client.on('runWatchers', (assets) => {
+            stopWatchers();
+            timersIds = runWatchers(getPlatforms(assets), assets);
         });
 
         client.on('disconnect', () => {

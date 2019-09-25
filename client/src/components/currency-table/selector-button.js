@@ -77,7 +77,9 @@ class SelectorButton extends Component {
                     onChange={onSelect}
                     value={null}
                     options={listData}
-                    showSearch
+                    showSearch={{
+                        filter: (inputValue, path) => path.some((option) => option.label.toLowerCase().indexOf(inputValue.toLowerCase()) > -1),
+                    }}
                 />
             )
             : (

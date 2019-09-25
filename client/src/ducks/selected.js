@@ -4,6 +4,8 @@ import {
     all, call, takeEvery, select, put,
 } from 'redux-saga/effects';
 import { appName } from '../config';
+// eslint-disable-next-line import/no-cycle
+import { UPDATE_SUBSCRIPTION } from './tickers';
 
 /**
  * Constants
@@ -153,15 +155,24 @@ export function* saveStateOnChange() {
     const storage = window.localStorage;
     const state = yield select(stateSelector);
     yield call([storage, storage.setItem], 'state', JSON.stringify(state));
+    yield put({
+        type: UPDATE_SUBSCRIPTION,
+        payload: { baseAssets: state.rows, quoteAssets: state.columns },
+    });
 }
 
 export function* loadStateFromStorage() {
     const storage = window.localStorage;
-    const state = yield call([storage, storage.getItem], 'state');
+    const stateStr = yield call([storage, storage.getItem], 'state');
+    const state = JSON.parse(stateStr);
     if (state) {
         yield put({
             type: LOAD_STATE,
-            payload: JSON.parse(state),
+            payload: state,
+        });
+        yield put({
+            type: UPDATE_SUBSCRIPTION,
+            payload: { baseAssets: state.rows, quoteAssets: state.columns },
         });
     }
 }

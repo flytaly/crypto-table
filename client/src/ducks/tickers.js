@@ -1,11 +1,13 @@
 import io from 'socket.io-client';
 import {
-    call, take, put, fork, takeEvery,
+    call, take, put, fork, takeEvery, select,
 } from 'redux-saga/effects';
 import { eventChannel } from 'redux-saga';
 import produce from 'immer';
 import { createSelector } from 'reselect';
 import { appName, IOSERVER } from '../config';
+// eslint-disable-next-line import/no-cycle
+import { rowsSelector, columnsSelector } from './selected';
 
 /**
  * Constants
@@ -14,6 +16,7 @@ export const moduleName = 'tickers';
 const prefix = `${appName}/${moduleName}`;
 
 export const SUBSCRIBE = `${prefix}/SUBSCRIBE`;
+export const UPDATE_SUBSCRIPTION = `${prefix}/UPDATE_SUBSCRIPTION`;
 export const UNSUBSCRIBE = `${prefix}/UNSUBSCRIBE`;
 export const UPDATE_TICKER = `${prefix}/UPDATE_TICKER`;
 
@@ -50,13 +53,13 @@ export const entitiesSelector = createSelector(stateSelector, (state) => state.e
  * Sagas
  */
 
-const createTickerChannel = (socket) => eventChannel((emit) => {
+const createTickerChannel = (socket, assets) => eventChannel((emit) => {
     socket.on('ticker', (data) => {
         emit({ data });
     });
 
     socket.on('connect', () => {
-        socket.emit('subscribeToUpdates');
+        socket.emit('subscribeToUpdates', assets);
         console.log('WebSocket: subscribed to updates');
     });
 
@@ -84,13 +87,20 @@ export function* watchTickers() {
             reconnectionDelay: 1000,
         });
 
-        const wsChannel = yield call(createTickerChannel, socket);
+        const baseAssets = yield select(rowsSelector);
+        const quoteAssets = yield select(columnsSelector);
+
+        const wsChannel = yield call(createTickerChannel, socket, { baseAssets, quoteAssets });
 
         yield takeEvery(wsChannel, function* updateTicker({ data }) {
             yield put({
                 type: UPDATE_TICKER,
                 payload: data,
             });
+        });
+
+        yield takeEvery(UPDATE_SUBSCRIPTION, function* subscribe({ payload }) {
+            yield call([socket, socket.emit], 'runWatchers', payload);
         });
 
         yield take(UNSUBSCRIBE);

@@ -5,6 +5,10 @@ const { dbPath } = require('../config');
 
 const adapter = new FileAsync(dbPath);
 
+const CC_FIAT = [
+    'USD', 'EUR',
+];
+
 module.exports = async (req, res) => {
     const db = await low(adapter);
     const exchanges = db.get('exchanges').value();
@@ -17,7 +21,7 @@ module.exports = async (req, res) => {
             name: 'CryptoCompare',
             id: 'cryptocompare',
             url: 'https://cryptocompare.com',
-            quoteAssets: Object.keys(Data),
+            quoteAssets: [...CC_FIAT, ...Object.keys(Data)],
         });
     }
 

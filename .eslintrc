@@ -5,6 +5,7 @@
         "sourceType": "module",
         "ecmaVersion": 8
     },
+    "plugins": ["react-hooks"],
     "env": {
         "node": true,
         "browser": true,
@@ -37,6 +38,8 @@
         ],
         "react/jsx-props-no-spreading": "off",
         "react/destructuring-assignment": "off",
-        "react/state-in-constructor": "off"
+        "react/state-in-constructor": "off",
+        "react-hooks/rules-of-hooks": "error",
+        "react-hooks/exhaustive-deps": "warn",
     }
 }

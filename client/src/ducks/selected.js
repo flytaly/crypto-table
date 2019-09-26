@@ -22,12 +22,14 @@ export const MOVE_COLUMN = `${prefix}/MOVE_COLUMN`;
 export const SORT_COLUMN = `${prefix}/SORT_COLUMN`;
 export const LOAD_STATE = `${prefix}/LOAD_STATE`;
 export const SET_NEW_ROW_ORDER = `${prefix}/SET_NEW_ROW_ORDER`;
+export const TOGGLE_CHART = `${prefix}/TOGGLE_CHART`;
 
 /**
  * Reducer
  * */
 
 export const initialState = {
+    isChartOpened: false,
     rows: ['BTC', 'ETH', 'XRP'],
     columns: [{
         exchange: 'binance',
@@ -51,6 +53,7 @@ export default (state = initialState, action) => produce(state, (draft) => {
             draft.rows = payload.rows;
             draft.columns = payload.columns;
             draft.columnSort = payload.columnSort;
+            draft.isChartOpened = payload.isChartOpened;
             break;
         case ADD_ROW:
             draft.rows.push(payload);
@@ -91,6 +94,9 @@ export default (state = initialState, action) => produce(state, (draft) => {
             draft.rows = payload;
             break;
         }
+        case TOGGLE_CHART:
+            draft.isChartOpened = !draft.isChartOpened;
+            break;
     }
 });
 
@@ -103,7 +109,7 @@ export const stateSelector = (state) => state[moduleName];
 export const rowsSelector = createSelector(stateSelector, (state) => state.rows);
 export const columnsSelector = createSelector(stateSelector, (state) => state.columns);
 export const sortedColumnSelector = createSelector(stateSelector, (state) => state.columnSort);
-
+export const isChartOpenedSelector = createSelector(stateSelector, (state) => state.isChartOpened);
 /**
  * Action Creators
  * */
@@ -147,6 +153,8 @@ export const saveRowOrderInStore = (payload) => ({
     payload,
 });
 
+export const toggleChart = () => ({ type: TOGGLE_CHART });
+
 /**
  * Sagas
  */
@@ -187,6 +195,7 @@ export function* saga() {
             MOVE_ROW,
             MOVE_COLUMN,
             SORT_COLUMN,
+            TOGGLE_CHART,
         ], saveStateOnChange),
     ]);
 

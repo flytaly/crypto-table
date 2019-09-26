@@ -9,7 +9,7 @@ const platforms = {
     binance,
     cryptocompare,
 };
-const enabledPlatforms = Object.keys(platforms);
+const defaultPlatforms = ['binance'];
 
 function watcher(exchange, tickerCreator, assets, interval) {
     let exchangeTicker = tickerCreator();
@@ -28,7 +28,7 @@ function watcher(exchange, tickerCreator, assets, interval) {
     return timerId;
 }
 
-function runWatchers(watchPlatforms = enabledPlatforms, assets) {
+function runWatchers(watchPlatforms = defaultPlatforms, assets) {
     watchPlatforms.forEach((pl) => {
         timers[pl] = watcher(pl, platforms[pl], assets, updateInterval);
     });

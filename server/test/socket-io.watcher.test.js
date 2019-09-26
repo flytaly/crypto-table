@@ -28,7 +28,8 @@ describe('Socket.IO watcher', () => {
         clients.push(client);
 
         client.on('connect', () => {
-            client.emit('subscribeToUpdates');
+            const assets = { baseAssets: ['BTC'], quoteAssets: [{ exchange: 'binance', quoteAsset: 'USDT' }] };
+            client.emit('subscribeToUpdates', assets);
         });
 
         client.on('ticker', (ticker) => {

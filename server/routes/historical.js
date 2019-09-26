@@ -15,7 +15,7 @@ module.exports = async (req, res) => {
                 .subtract(i, timeUnit)
                 .toDate();
             const result = await cc.priceHistorical(fsym, tsym, date);
-            return { ...result, time: date };
+            return { ...result, time: date.getTime() };
         });
 
     const results = await Promise.all(pricePromises);

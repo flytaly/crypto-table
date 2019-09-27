@@ -4,13 +4,18 @@ import PropTypes from 'prop-types';
 import D3LineChart from './d3-line-chart';
 
 const LineChartWrapper = ({ data, xSymbol, ySymbol }) => {
-    const chartRef = useRef(null);
+    const containerRef = useRef(null);
+    const instanceRef = useRef(null);
 
     useEffect(() => {
-        new D3LineChart(chartRef.current, data, xSymbol, ySymbol);
+        if (!instanceRef.current) {
+            instanceRef.current = new D3LineChart(containerRef.current, data, xSymbol, ySymbol);
+        } else {
+            instanceRef.current.update(data, xSymbol, ySymbol);
+        }
     }, [data, xSymbol, ySymbol]);
 
-    return <div ref={chartRef} />;
+    return <div ref={containerRef} />;
 };
 
 LineChartWrapper.propTypes = {

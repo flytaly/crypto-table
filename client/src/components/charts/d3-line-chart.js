@@ -1,4 +1,5 @@
 import * as d3 from 'd3';
+import { interpolatePath } from 'd3-interpolate-path';
 import './chart.less';
 
 const MARGIN = { TOP: 10, BOTTOM: 50, LEFT: 10, RIGHT: 60 };
@@ -12,6 +13,7 @@ export default class LineChart {
         this.data = data;
         this.xSymbol = xSymbol;
         this.ySymbol = ySymbol;
+        this.tranDuration = 400;
 
         this.svg = d3.select(element)
             .append('svg')
@@ -41,7 +43,12 @@ export default class LineChart {
         this.update();
     }
 
-    update() {
+    update(newData, newXSymbol, newYSymbol) {
+        const prevData = this.data;
+        this.data = newData || this.data;
+        this.xSymbol = newXSymbol || this.xSymbol;
+        this.ySymbol = newYSymbol || this.ySymbol;
+
         const { data } = this;
         const xValue = (d) => d.time;
         const yValue = (d) => d[this.ySymbol];
@@ -58,29 +65,45 @@ export default class LineChart {
             .range([0, INNER_WIDTH]);
 
         const xAxisCall = d3.axisBottom(xScale);
-        this.xAxisGroup.call(xAxisCall);
+        this.xAxisGroup.transition().duration(this.tranDuration).call(xAxisCall);
 
         const yAxisCall = d3.axisRight(yScale);
-        this.yAxisGroup.call(yAxisCall);
+        this.yAxisGroup.transition().duration(this.tranDuration).call(yAxisCall);
 
         const lineGenerator = d3.line()
             .x((d) => xScale(xValue(d)))
             .y((d) => yScale(yValue(d)))
             .curve(d3.curveLinear);
 
-        const path = this.svg
-            .append('path')
-            .attr('class', 'line-path')
-            .attr('d', lineGenerator(data));
-
-        const totalLength = path.node().getTotalLength();
+        const path = this.svg.selectAll('.line-path').data([data]);
 
         path
-            .attr('stroke-dasharray', `${totalLength} ${totalLength}`)
-            .attr('stroke-dashoffset', -totalLength)
+            .attr('d', lineGenerator)
+            .attr('class', 'line-path')
             .transition()
-            .duration(500)
-            .ease(d3.easeLinear)
-            .attr('stroke-dashoffset', 0);
+            .duration(this.tranDuration)
+            .attrTween('d', (d) => {
+                const prev = lineGenerator(prevData);
+                const next = lineGenerator(d);
+                return interpolatePath(prev, next);
+            });
+        path.exit().remove();
+
+        const pathEnter = path.enter()
+            .append('svg:path')
+            .attr('d', lineGenerator)
+            .attr('class', 'line-path');
+
+        // Animation on enter
+        if (pathEnter.node()) {
+            const totalLength = pathEnter.node().getTotalLength();
+            pathEnter
+                .attr('stroke-dasharray', `${totalLength} ${totalLength}`)
+                .attr('stroke-dashoffset', -totalLength)
+                .transition()
+                .duration(this.tranDuration)
+                .ease(d3.easeLinear)
+                .attr('stroke-dashoffset', 0);
+        }
     }
 }

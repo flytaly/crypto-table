@@ -72,5 +72,15 @@ export default class LineChart {
             .append('path')
             .attr('class', 'line-path')
             .attr('d', lineGenerator(data));
+
+        const totalLength = path.node().getTotalLength();
+
+        path
+            .attr('stroke-dasharray', `${totalLength} ${totalLength}`)
+            .attr('stroke-dashoffset', -totalLength)
+            .transition()
+            .duration(500)
+            .ease(d3.easeLinear)
+            .attr('stroke-dashoffset', 0);
     }
 }

@@ -16,14 +16,17 @@ module.exports = async (req, res) => {
 
     const stepRange = (endDate - startDate) / steps;
 
-    const pricePromises = Array.from({ length: steps },
-        async (_, i) => {
-            const date = new Date(endDate.getTime() - i * stepRange);
-            const result = await cc.priceHistorical(fsym, tsym, date);
-            return { ...result, time: date.getTime() };
-        });
+    try {
+        const pricePromises = Array.from({ length: steps },
+            async (_, i) => {
+                const date = new Date(endDate.getTime() - i * stepRange);
+                const result = await cc.priceHistorical(fsym, tsym, date);
+                return { ...result, time: date.getTime() };
+            });
 
-    const results = await Promise.all(pricePromises);
-
-    res.send(results);
+        const results = await Promise.all(pricePromises);
+        res.send(results);
+    } catch (error) {
+        res.status(400).send({ message: error.message || error });
+    }
 };

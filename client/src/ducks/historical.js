@@ -74,7 +74,7 @@ export function* loadHistoricalSaga({ payload }) {
             payload: data,
         });
     } catch (error) {
-        console.error(error);
+        console.error((error.response && error.response.data) || error);
         yield put({
             type: LOAD_HISTORICAL_FAIL,
             payload: error,

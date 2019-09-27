@@ -1,6 +1,6 @@
 import * as d3 from 'd3';
 import { interpolatePath } from 'd3-interpolate-path';
-import './chart.less';
+import './d3-line-chart.less';
 
 const MARGIN = { TOP: 10, BOTTOM: 50, LEFT: 10, RIGHT: 60 };
 const WIDTH = 700;
@@ -9,11 +9,11 @@ const HEIGHT = 300;
 const INNER_HEIGHT = HEIGHT - MARGIN.TOP - MARGIN.BOTTOM;
 
 export default class LineChart {
-    constructor(element, data, xSymbol, ySymbol) {
+    constructor(element, data, xSymbol, ySymbol, loading) {
         this.data = data;
         this.xSymbol = xSymbol;
         this.ySymbol = ySymbol;
-        this.tranDuration = 400;
+        this.tranDuration = 250;
 
         this.svg = d3.select(element)
             .append('svg')
@@ -40,23 +40,38 @@ export default class LineChart {
         this.yAxisGroup = this.svg.append('g')
             .attr('transform', `translate(${INNER_WIDTH}, 0)`);
 
-        this.update();
+        this.loading = this.svg.append('text')
+            .attr('x', INNER_WIDTH / 2)
+            .attr('y', INNER_HEIGHT / 2);
+
+        this.update(null, loading);
     }
 
-    update(newData, newXSymbol, newYSymbol) {
+    update(newValues, loading) {
+        if (loading) {
+            this.loading.text('Loading...');
+            return;
+        }
+        this.loading.text('');
+
         const prevData = this.data;
-        this.data = newData || this.data;
-        this.xSymbol = newXSymbol || this.xSymbol;
-        this.ySymbol = newYSymbol || this.ySymbol;
+
+        if (newValues) {
+            this.data = newValues.data || this.data;
+            this.xSymbol = newValues.xSymbol || this.xSymbol;
+            this.ySymbol = newValues.ySymbol || this.ySymbol;
+        }
 
         const { data } = this;
+        if (!data || !data.length) return;
+
         const xValue = (d) => d.time;
         const yValue = (d) => d[this.ySymbol];
 
         const yScale = d3.scaleLinear()
             .domain([
-                /* d3.min(data, (d) => yValue(d) * 0.80)  */0,
-                d3.max(data, (d) => yValue(d) * 1.10),
+                d3.min(data, (d) => yValue(d) * 0.95),
+                d3.max(data, (d) => yValue(d) * 1.05),
             ])
             .range([INNER_HEIGHT, 0]);
 
@@ -87,6 +102,7 @@ export default class LineChart {
                 const next = lineGenerator(d);
                 return interpolatePath(prev, next);
             });
+
         path.exit().remove();
 
         const pathEnter = path.enter()

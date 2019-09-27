@@ -6,6 +6,7 @@ import {
 import { appName } from '../config';
 // eslint-disable-next-line import/no-cycle
 import { UPDATE_SUBSCRIPTION } from './tickers';
+import { CHART_ZOOM } from '../types';
 
 /**
  * Constants
@@ -23,6 +24,7 @@ export const SORT_COLUMN = `${prefix}/SORT_COLUMN`;
 export const LOAD_STATE = `${prefix}/LOAD_STATE`;
 export const SET_NEW_ROW_ORDER = `${prefix}/SET_NEW_ROW_ORDER`;
 export const TOGGLE_CHART = `${prefix}/TOGGLE_CHART`;
+export const CHANGE_CHART_ZOOM = `${prefix}/CHANGE_CHART_ZOOM`;
 
 /**
  * Reducer
@@ -30,6 +32,7 @@ export const TOGGLE_CHART = `${prefix}/TOGGLE_CHART`;
 
 export const initialState = {
     isChartOpened: false,
+    chartZoom: CHART_ZOOM.ONE_YEAR,
     rows: ['BTC', 'ETH', 'XRP'],
     columns: [{
         exchange: 'binance',
@@ -50,10 +53,9 @@ export default (state = initialState, action) => produce(state, (draft) => {
     const { type, payload } = action;
     switch (type) {
         case LOAD_STATE:
-            draft.rows = payload.rows;
-            draft.columns = payload.columns;
-            draft.columnSort = payload.columnSort;
-            draft.isChartOpened = payload.isChartOpened;
+            Object.keys(payload || {}).forEach((key) => {
+                draft[key] = payload[key];
+            });
             break;
         case ADD_ROW:
             draft.rows.push(payload);
@@ -97,6 +99,9 @@ export default (state = initialState, action) => produce(state, (draft) => {
         case TOGGLE_CHART:
             draft.isChartOpened = !draft.isChartOpened;
             break;
+        case CHANGE_CHART_ZOOM:
+            draft.chartZoom = payload;
+            break;
     }
 });
 
@@ -110,6 +115,8 @@ export const rowsSelector = createSelector(stateSelector, (state) => state.rows)
 export const columnsSelector = createSelector(stateSelector, (state) => state.columns);
 export const sortedColumnSelector = createSelector(stateSelector, (state) => state.columnSort);
 export const isChartOpenedSelector = createSelector(stateSelector, (state) => state.isChartOpened);
+export const chartZoomSelector = createSelector(stateSelector, (state) => state.chartZoom);
+
 /**
  * Action Creators
  * */
@@ -155,6 +162,8 @@ export const saveRowOrderInStore = (payload) => ({
 
 export const toggleChart = () => ({ type: TOGGLE_CHART });
 
+export const changeChartZoom = (payload) => ({ type: CHANGE_CHART_ZOOM, payload });
+
 /**
  * Sagas
  */
@@ -196,6 +205,7 @@ export function* saga() {
             MOVE_COLUMN,
             SORT_COLUMN,
             TOGGLE_CHART,
+            CHANGE_CHART_ZOOM,
         ], saveStateOnChange),
     ]);
 

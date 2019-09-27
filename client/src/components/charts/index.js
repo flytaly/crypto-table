@@ -10,10 +10,13 @@ const Charts = () => {
     const loading = useSelector(isLoadingSelector);
     const data = useSelector(entitiesSelector);
     const dispatch = useDispatch();
+    const baseAsset = 'BTC';
+    const quoteAsset = 'USD';
+
 
     useEffect(() => {
         if (show) {
-            dispatch(loadHistorical({ fsym: 'BTC', tsym: 'USD' }));
+            dispatch(loadHistorical({ fsym: 'BTC', tsym: 'USD', steps: 10 }));
         }
     }, [dispatch, show]);
 
@@ -27,7 +30,13 @@ const Charts = () => {
                     icon="line-chart"
                 />
             </Tooltip>
-            {show && !loading ? <LineCharWrapper data={Array.isArray(data) ? data : []} /> : null}
+            {show && !loading ? (
+                <LineCharWrapper
+                    data={Array.isArray(data) ? data : []}
+                    xSymbol={baseAsset}
+                    ySymbol={quoteAsset}
+                />
+            ) : null}
         </div>
     );
 };

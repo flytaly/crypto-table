@@ -6,7 +6,7 @@ let config = {
     dbPath: path.join(__dirname, '../../db.json'),
     dbDefaultPath: path.join(__dirname, '../../db.default.json'),
     dbCurrenciesPath: path.join(__dirname, '../../currencies.json'),
-    updateInterval: 10000,
+    updateInterval: 5000,
 };
 
 // TEST

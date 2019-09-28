@@ -25,6 +25,7 @@ export const UPDATE_TICKER = `${prefix}/UPDATE_TICKER`;
  * */
 export const initialState = {
     entities: {},
+    prevEntities: {},
 };
 
 /* eslint-disable no-param-reassign */
@@ -33,6 +34,7 @@ export default (state = initialState, action) => produce(state, (draft) => {
     const { type, payload } = action;
     switch (type) {
         case UPDATE_TICKER:
+            draft.prevEntities[payload.exchange] = draft.entities[payload.exchange];
             draft.entities[payload.exchange] = payload.ticker;
             break;
     }
@@ -43,6 +45,7 @@ export default (state = initialState, action) => produce(state, (draft) => {
  * */
 export const stateSelector = (state) => state[moduleName];
 export const entitiesSelector = createSelector(stateSelector, (state) => state.entities);
+export const prevEntitiesSelector = createSelector(stateSelector, (state) => state.prevEntities);
 
 /**
  * Action Creators

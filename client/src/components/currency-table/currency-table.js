@@ -7,7 +7,7 @@ import { connect } from 'react-redux';
 import {
     Checkbox, Icon, Popover, Tooltip, Menu,
 } from 'antd';
-import { entitiesSelector as tickerSelector } from '../../ducks/tickers';
+import { entitiesSelector as tickerSelector, prevEntitiesSelector as prevTickerSelector } from '../../ducks/tickers';
 import {
     rowsSelector, columnsSelector, sortedColumnSelector, deleteColumns,
     deleteRows, moveRow, moveColumn, sortByColumn, saveRowOrderInStore,
@@ -459,16 +459,21 @@ class CurrencyTable extends Component {
     };
 
     renderBodyCell = ({ columnIndex, key, rowIndex, style }) => {
-        const { rows, columns, tickers } = this.props;
+        const { rows, columns, tickers, tickersPrev } = this.props;
         const { hoveredRowIndex, isDragging, columnsToDelete, rowsToDelete } = this.state;
 
         const baseAsset = rows[rowIndex];
         const { exchange, quoteAsset } = columns[columnIndex];
 
+        const value = get(tickers, [exchange, baseAsset, quoteAsset, 'last_price']);
+        const valuePrev = get(tickersPrev, [exchange, baseAsset, quoteAsset, 'last_price']);
+
         const className = cn({
             'grid-cell': true,
             hovered: !isDragging && rowIndex === hoveredRowIndex,
             selected: columnsToDelete.has(columnIndex) || rowsToDelete.has(rowIndex),
+            changeUp: value && valuePrev && value > valuePrev,
+            changeDown: value && valuePrev && value < valuePrev,
         });
 
         return (
@@ -479,7 +484,7 @@ class CurrencyTable extends Component {
                 onMouseOver={() => this.mouseOverHandler(rowIndex, columnIndex)}
                 data-pair={`${baseAsset}__${quoteAsset}`}
             >
-                {get(tickers, [exchange, baseAsset, quoteAsset, 'last_price'])}
+                {value}
             </div>
         );
     };
@@ -581,6 +586,7 @@ CurrencyTable.defaultProps = {
 
 export default connect((state) => ({
     tickers: tickerSelector(state),
+    tickersPrev: prevTickerSelector(state),
     rows: rowsSelector(state),
     columns: columnsSelector(state),
     sortedColumn: sortedColumnSelector(state),

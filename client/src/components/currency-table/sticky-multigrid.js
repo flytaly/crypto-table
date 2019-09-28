@@ -1,4 +1,4 @@
-/* eslint-disable no-underscore-dangle */
+/* eslint-disable no-underscore-dangle,jsx-a11y/click-events-have-key-events,jsx-a11y/no-static-element-interactions */
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import getScrollbarSize from 'dom-helpers/scrollbarSize';
@@ -105,6 +105,8 @@ class StickyMultigrid extends PureComponent {
             onSortMove,
             onSortEnd,
             onSortStart,
+
+            onBodyClick,
         } = this.props;
 
         const totalWidth = (columnCount * columnWidth) + leftColumnWidth;
@@ -231,6 +233,7 @@ class StickyMultigrid extends PureComponent {
                                                 height: bodyHeight,
                                                 width: bodyWidth,
                                             }}
+                                            onClick={onBodyClick}
                                         >
                                             <Grid
                                                 className={classNameRightBottom}
@@ -286,6 +289,8 @@ StickyMultigrid.propTypes = {
     onSortMove: PropTypes.func,
     onSortOver: PropTypes.func,
     onSortEnd: PropTypes.func,
+
+    onBodyClick: PropTypes.func,
 };
 
 StickyMultigrid.defaultProps = {
@@ -304,6 +309,8 @@ StickyMultigrid.defaultProps = {
     onSortMove: () => null,
     onSortOver: () => null,
     onSortEnd: () => null,
+
+    onBodyClick: () => null,
 };
 
 export default StickyMultigrid;

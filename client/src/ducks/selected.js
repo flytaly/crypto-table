@@ -25,6 +25,7 @@ export const LOAD_STATE = `${prefix}/LOAD_STATE`;
 export const SET_NEW_ROW_ORDER = `${prefix}/SET_NEW_ROW_ORDER`;
 export const TOGGLE_CHART = `${prefix}/TOGGLE_CHART`;
 export const CHANGE_CHART_ZOOM = `${prefix}/CHANGE_CHART_ZOOM`;
+export const CHANGE_CHART_PAIRS = `${prefix}/CHANGE_CHART_PAIRS`;
 
 /**
  * Reducer
@@ -33,6 +34,7 @@ export const CHANGE_CHART_ZOOM = `${prefix}/CHANGE_CHART_ZOOM`;
 export const initialState = {
     isChartOpened: false,
     chartZoom: CHART_ZOOM.ONE_YEAR,
+    chartPairs: ['BTC', 'USD'],
     rows: ['BTC', 'ETH', 'XRP'],
     columns: [{
         exchange: 'binance',
@@ -96,11 +98,15 @@ export default (state = initialState, action) => produce(state, (draft) => {
             draft.rows = payload;
             break;
         }
+
         case TOGGLE_CHART:
             draft.isChartOpened = !draft.isChartOpened;
             break;
         case CHANGE_CHART_ZOOM:
             draft.chartZoom = payload;
+            break;
+        case CHANGE_CHART_PAIRS:
+            draft.chartPairs = payload;
             break;
     }
 });
@@ -116,6 +122,7 @@ export const columnsSelector = createSelector(stateSelector, (state) => state.co
 export const sortedColumnSelector = createSelector(stateSelector, (state) => state.columnSort);
 export const isChartOpenedSelector = createSelector(stateSelector, (state) => state.isChartOpened);
 export const chartZoomSelector = createSelector(stateSelector, (state) => state.chartZoom);
+export const chartPairsSelector = createSelector(stateSelector, (state) => state.chartPairs);
 
 /**
  * Action Creators
@@ -164,6 +171,8 @@ export const toggleChart = () => ({ type: TOGGLE_CHART });
 
 export const changeChartZoom = (payload) => ({ type: CHANGE_CHART_ZOOM, payload });
 
+export const changeChartPairs = (payload) => ({ type: CHANGE_CHART_PAIRS, payload });
+
 /**
  * Sagas
  */
@@ -206,6 +215,7 @@ export function* saga() {
             SORT_COLUMN,
             TOGGLE_CHART,
             CHANGE_CHART_ZOOM,
+            CHANGE_CHART_PAIRS,
         ], saveStateOnChange),
     ]);
 

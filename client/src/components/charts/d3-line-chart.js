@@ -24,15 +24,12 @@ export default class LineChart {
 
         this.xLabel = this.svg.append('text')
             .attr('x', INNER_WIDTH / 2)
-            .attr('y', INNER_HEIGHT + 30)
-            .text(xSymbol);
+            .attr('y', INNER_HEIGHT + 30);
 
         this.yLabel = this.svg.append('text')
             .attr('y', -WIDTH + 20)
             .attr('x', INNER_HEIGHT / 2)
-            .attr('text-anchor', 'middle')
-            .text(`Price (${ySymbol})`)
-            .attr('transform', 'rotate(90)');
+            .attr('text-anchor', 'middle');
 
         this.xAxisGroup = this.svg.append('g')
             .attr('transform', `translate(0, ${INNER_HEIGHT})`);
@@ -62,8 +59,15 @@ export default class LineChart {
             this.ySymbol = newValues.ySymbol || this.ySymbol;
         }
 
+        this.yLabel
+            .text(`Price (${this.ySymbol})`)
+            .attr('transform', 'rotate(90)');
+        this.xLabel
+            .text(this.xSymbol);
+
         const { data } = this;
         if (!data || !data.length) return;
+
 
         const xValue = (d) => d.time;
         const yValue = (d) => d[this.ySymbol];

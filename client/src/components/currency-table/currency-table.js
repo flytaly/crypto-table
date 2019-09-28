@@ -477,6 +477,7 @@ class CurrencyTable extends Component {
                 key={key}
                 style={style}
                 onMouseOver={() => this.mouseOverHandler(rowIndex, columnIndex)}
+                data-pair={`${baseAsset}__${quoteAsset}`}
             >
                 {get(tickers, [exchange, baseAsset, quoteAsset, 'last_price'])}
             </div>
@@ -484,7 +485,7 @@ class CurrencyTable extends Component {
     };
 
     render() {
-        const { rows, columns } = this.props;
+        const { rows, columns, onBodyClick } = this.props;
         const {
             columnWidth,
             rowHeight,
@@ -526,6 +527,8 @@ class CurrencyTable extends Component {
                         onSortStart={this.sortStartHandler}
                         onSortEnd={this.sortEndHandler}
 
+                        onBodyClick={onBodyClick}
+
                         {...classNames}
                     />
                 </div>
@@ -549,6 +552,7 @@ CurrencyTable.propTypes = {
         sortOrder: PropTypes.oneOf([SORT_UP, SORT_DOWN]),
     }),
     saveRowOrderInStore: PropTypes.func,
+    onBodyClick: PropTypes.func,
 };
 
 CurrencyTable.defaultProps = {
@@ -572,6 +576,7 @@ CurrencyTable.defaultProps = {
         sortOrder: SORT_UP,
     },
     saveRowOrderInStore: () => {},
+    onBodyClick: () => {},
 };
 
 export default connect((state) => ({

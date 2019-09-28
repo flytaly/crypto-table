@@ -2,7 +2,9 @@ import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Button, Tooltip } from 'antd';
 import { isLoadingSelector, entitiesSelector } from '../../ducks/historical';
-import { isChartOpenedSelector, toggleChart, changeChartZoom, chartZoomSelector } from '../../ducks/selected';
+import {
+    isChartOpenedSelector, toggleChart, changeChartZoom, chartZoomSelector, chartPairsSelector,
+} from '../../ducks/selected';
 import LineCharWrapper from './line-chart-wrapper';
 import ZoomButtons from './zoom-buttons';
 import classes from './index.module.less';
@@ -12,10 +14,11 @@ const Charts = () => {
     const show = useSelector(isChartOpenedSelector);
     const chartZoom = useSelector(chartZoomSelector);
     const loading = useSelector(isLoadingSelector);
+    const chartPairs = useSelector(chartPairsSelector);
     const data = useSelector(entitiesSelector);
     const dispatch = useDispatch();
-    const baseAsset = 'BTC';
-    const quoteAsset = 'USD';
+    const baseAsset = chartPairs[0] || 'BTC';
+    const quoteAsset = chartPairs[1] || 'USD';
 
     useHistoricalData(dispatch, show, chartZoom, baseAsset, quoteAsset);
 

@@ -158,7 +158,8 @@ class StickyMultigrid extends PureComponent {
 
                                         <StickyHeader
                                             top=".header"
-                                            bottom="#tableBody"
+                                            stickyStart="#tableBody"
+                                            stickyEnd="#tableBody"
                                             height={headerRowHeight}
                                         >
                                             <div>

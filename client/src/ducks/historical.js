@@ -48,6 +48,7 @@ export default (state = initialState, action) => {
 export const stateSelector = (state) => state[moduleName];
 export const entitiesSelector = createSelector(stateSelector, (state) => state.entities);
 export const isLoadingSelector = createSelector(stateSelector, (state) => state.loading);
+export const errorSelector = createSelector(stateSelector, (state) => state.error);
 
 
 /**
@@ -74,10 +75,11 @@ export function* loadHistoricalSaga({ payload }) {
             payload: data,
         });
     } catch (error) {
-        console.error((error.response && error.response.data) || error);
+        const msg = (error.response && error.response.data) || error;
+        console.error(msg);
         yield put({
             type: LOAD_HISTORICAL_FAIL,
-            payload: error,
+            payload: msg,
         });
     }
 }

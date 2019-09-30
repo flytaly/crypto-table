@@ -1,5 +1,5 @@
 import * as d3 from 'd3';
-import { interpolatePath } from 'd3-interpolate-path';
+// import { interpolatePath } from 'd3-interpolate-path';
 import './d3-line-chart.less';
 
 const MARGIN = { TOP: 10, BOTTOM: 50, LEFT: 10, RIGHT: 60 };
@@ -51,7 +51,7 @@ export default class LineChart {
         }
         this.loading.text('');
 
-        const prevData = this.data;
+        // const prevData = this.data;
 
         if (newValues) {
             this.data = newValues.data || this.data;
@@ -96,7 +96,7 @@ export default class LineChart {
 
         const path = this.svg.selectAll('.line-path').data([data]);
 
-        path
+        /* path
             .attr('d', lineGenerator)
             .attr('class', 'line-path')
             .transition()
@@ -105,13 +105,14 @@ export default class LineChart {
                 const prev = lineGenerator(prevData);
                 const next = lineGenerator(d);
                 return interpolatePath(prev, next);
-            });
+            }); */
 
         path.exit().remove();
 
         const pathEnter = path.enter()
             .append('svg:path')
             .attr('d', lineGenerator)
+            .merge(path.attr('d', lineGenerator))
             .attr('class', 'line-path');
 
         // Animation on enter

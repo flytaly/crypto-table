@@ -13,7 +13,7 @@ export const LOAD_HISTORICAL_REQUEST = `${prefix}/LOAD_HISTORICAL_REQUEST`;
 export const LOAD_HISTORICAL_START = `${prefix}/LOAD_HISTORICAL_START`;
 export const LOAD_HISTORICAL_SUCCESS = `${prefix}/LOAD_HISTORICAL_SUCCESS`;
 export const LOAD_HISTORICAL_FAIL = `${prefix}/LOAD_HISTORICAL_FAIL`;
-
+export const CLEAR_HISTORICAL_DATA = `${prefix}/CLEAR_HISTORICAL_DATA`;
 
 /**
  * Reducer
@@ -34,6 +34,8 @@ export default (state = initialState, action) => {
             return { ...state, loading: false, entities: payload };
         case LOAD_HISTORICAL_FAIL:
             return { ...state, loading: false, error: payload };
+        case CLEAR_HISTORICAL_DATA:
+            return { ...state, entities: {} };
 
         default:
             return state;
@@ -58,7 +60,7 @@ export const loadHistorical = (payload) => ({
     type: LOAD_HISTORICAL_REQUEST,
     payload,
 });
-
+export const clearHistoricalData = () => ({ type: CLEAR_HISTORICAL_DATA });
 
 /**
  * Sagas

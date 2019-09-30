@@ -1,7 +1,7 @@
 import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Button, Tooltip } from 'antd';
-import { isLoadingSelector, entitiesSelector } from '../../ducks/historical';
+import { isLoadingSelector, entitiesSelector, clearHistoricalData } from '../../ducks/historical';
 import {
     isChartOpenedSelector, toggleChart, changeChartZoom, chartZoomSelector, chartPairsSelector,
 } from '../../ducks/selected';
@@ -27,7 +27,10 @@ const Charts = () => {
             <div className={classes.optionsContainer}>
                 <Tooltip placement="right" title={show ? 'Hide charts' : 'Show charts'}>
                     <Button
-                        onClick={() => { dispatch(toggleChart()); }}
+                        onClick={() => {
+                            dispatch(toggleChart());
+                            if (show) dispatch(clearHistoricalData());
+                        }}
                         loading={loading}
                         icon="line-chart"
                         size="small"

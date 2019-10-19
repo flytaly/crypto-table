@@ -37,7 +37,7 @@ Client:
 -   [d3](https://d3js.org) - charts
 -   [socket-io.client](https://github.com/socketio/socket.io-client) - connection to server
 
-Data sources: Binance API, Cryptocompare API.
+Data sources: Binance API, Cryptocompare API. Coinmarketcap - to create list of the currencies.
 
 ## Usage
 

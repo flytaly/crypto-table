@@ -41,7 +41,7 @@ Data sources: Binance API, Cryptocompare API.
 
 ## Usage
 
-For CryptoCompare API to work there should be [API key](https://www.cryptocompare.com/cryptopian/api-keys) in the .env file: `CC_API_KEY = 'api key`
+For CryptoCompare API to work there should be [API key](https://www.cryptocompare.com/cryptopian/api-keys) in the .env file: `CC_API_KEY = 'api key'`
 
 -   `yarn install`
 -   `yarn run createDbFiles`

@@ -2,7 +2,15 @@
 
 Crypto currency table with sticky header and draggable rows/columns.
 
-Data sources: Binance API, Cryptocompare API.
+Demo:
+
+<img src="https://i.imgur.com/1hKvQiZ.gif" width="500"/>
+
+Sticky header:
+
+<img src="https://i.imgur.com/mXrP7i7.gif" width="500"/>
+
+
 
 ## About
 
@@ -28,6 +36,8 @@ Client:
 -   [less](http://lesscss.org/)
 -   [d3](https://d3js.org) - charts
 -   [socket-io.client](https://github.com/socketio/socket.io-client) - connection to server
+
+Data sources: Binance API, Cryptocompare API.
 
 ## Usage
 

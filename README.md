@@ -32,7 +32,7 @@ Client:
 -   [redux-saga](https://github.com/redux-saga/redux-saga) - side effect manager that uses generators
 -   [react-virtualized](https://github.com/bvaughn/react-virtualized) - virtualized table
 -   [react-sortable-hoc](https://github.com/clauderic/react-sortable-hoc) - drag'n'drop
--   [and design](https://github.com/ant-design/ant-design) - UI Library
+-   [ant design](https://github.com/ant-design/ant-design) - UI Library
 -   [less](http://lesscss.org/)
 -   [d3](https://d3js.org) - charts
 -   [socket-io.client](https://github.com/socketio/socket.io-client) - connection to server

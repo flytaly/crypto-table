@@ -19,7 +19,7 @@
         "express": "^4.17.1",
         "lowdb": "^1.0.0",
         "moment": "^2.24.0",
-        "node-fetch": "^2.6.0",
+        "node-fetch": "^2.6.1",
         "socket.io": "^2.3.0"
     },
     "devDependencies": {
